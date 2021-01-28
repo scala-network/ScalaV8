@@ -40,8 +40,8 @@
 #include "cryptonote_config.h"
 #include "difficulty.h"
 
-#undef MONERO_DEFAULT_LOG_CATEGORY
-#define MONERO_DEFAULT_LOG_CATEGORY "difficulty"
+#undef SCALA_DEFAULT_LOG_CATEGORY
+#define SCALA_DEFAULT_LOG_CATEGORY "difficulty"
 
 namespace cryptonote {
 
@@ -125,7 +125,7 @@ namespace cryptonote {
   // Copyright (c) 2017-2018 Zawy (pseudocode)
   // MIT license http://www.opensource.org/licenses/mit-license.php
   // Copyright (c) 2018 The Masari Project (10x for quicker recoveries, minimum to be symmetric with FTL)
-  // Copyright (c) 2018 Wownero Inc., a Monero Enterprise Alliance partner company
+  // Copyright (c) 2018 Wownero Inc., a Scala Enterprise Alliance partner company
   // Copyright (c) 2018 The Karbowanec developers (initial code)
   // Copyright (c) 2018 Haven Protocol (refinements)
   // Degnr8, Karbowanec, Masari, Bitcoin Gold, Bitcoin Candy, and Haven have contributed.
@@ -241,7 +241,7 @@ namespace cryptonote {
   // Copyright (c) 2017-2018 Zawy (pseudocode)
   // MIT license http://www.opensource.org/licenses/mit-license.php
   // Copyright (c) 2018 The Masari Project (10x for quicker recoveries, minimum to be symmetric with FTL)
-  // Copyright (c) 2018 Wownero Inc., a Monero Enterprise Alliance partner company
+  // Copyright (c) 2018 Wownero Inc., a Scala Enterprise Alliance partner company
   // Copyright (c) 2018 The Karbowanec developers (initial code)
   // Copyright (c) 2018 Haven Protocol (refinements)
   // Degnr8, Karbowanec, Masari, Bitcoin Gold, Bitcoin Candy, and Haven have contributed.

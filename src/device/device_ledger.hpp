@@ -58,7 +58,7 @@ namespace hw {
 
     #ifdef WITH_DEVICE_LEDGER
 
-    // Origin: https://github.com/LedgerHQ/ledger-app-monero/blob/master/src/monero_types.h
+    // Origin: https://github.com/LedgerHQ/ledger-app-scala/blob/master/src/scala_types.h
     #define SW_BYTES_REMAINING_00                0x6100
     #define SW_WARNING_STATE_UNCHANGED           0x6200
     #define SW_STATE_TERMINATED                  0x6285

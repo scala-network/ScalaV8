@@ -33,7 +33,7 @@
 
 using namespace std;
 
-namespace Monero {
+namespace Scala {
 
 TransactionInfo::~TransactionInfo() {}
 
@@ -140,4 +140,4 @@ uint64_t TransactionInfoImpl::unlockTime() const
 
 } // namespace
 
-namespace Bitmonero = Monero;
+namespace Bitscala = Scala;

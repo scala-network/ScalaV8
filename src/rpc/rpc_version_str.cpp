@@ -36,7 +36,7 @@ namespace cryptonote
 namespace rpc
 {
 
-// Expected format of Monero software version string:
+// Expected format of Scala software version string:
 // 1) Four numbers, one to two digits each, separated by periods
 // 2) Optionally, one of the following suffixes:
 //      a) -release

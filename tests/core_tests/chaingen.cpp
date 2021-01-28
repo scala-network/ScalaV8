@@ -745,7 +745,7 @@ std::string block_tracker::dump_data()
 
       ss << "    idx: " << oi.idx
       << ", rct: " << oi.rct
-      << ", xmr: " << oi.amount
+      << ", xla: " << oi.amount
       << ", key: " << dump_keys(out.key.data)
       << ", msk: " << dump_keys(oi.comm.bytes)
       << ", txid: " << dump_keys(oi.p_tx->hash.data)

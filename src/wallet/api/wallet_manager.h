@@ -33,7 +33,7 @@
 #include "net/http.h"
 #include <string>
 
-namespace Monero {
+namespace Scala {
 
 class WalletManagerImpl : public WalletManager
 {
@@ -103,4 +103,4 @@ private:
 
 } // namespace
 
-namespace Bitmonero = Monero;
+namespace Bitscala = Scala;

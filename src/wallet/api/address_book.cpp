@@ -37,7 +37,7 @@
 
 #include <vector>
 
-namespace Monero {
+namespace Scala {
   
 AddressBook::~AddressBook() {}
   
@@ -148,4 +148,4 @@ AddressBookImpl::~AddressBookImpl()
 
 } // namespace
 
-namespace Bitmonero = Monero;
+namespace Bitscala = Scala;

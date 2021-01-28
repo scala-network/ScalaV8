@@ -35,7 +35,7 @@
 
 using namespace std;
 
-namespace Monero {
+namespace Scala {
 namespace Utils {
 
 bool isAddressLocal(const std::string &address)
@@ -61,4 +61,4 @@ void onStartup()
 
 } // namespace
 
-namespace Bitmonero = Monero;
+namespace Bitscala = Scala;

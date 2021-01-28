@@ -38,9 +38,9 @@ set(blockchain_db_private_headers
   lmdb/db_lmdb.h
   )
 
-monero_private_headers(blockchain_db
+scala_private_headers(blockchain_db
   ${crypto_private_headers})
-monero_add_library(blockchain_db
+scala_add_library(blockchain_db
   ${blockchain_db_sources}
   ${blockchain_db_headers}
   ${blockchain_db_private_headers})

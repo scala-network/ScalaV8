@@ -40,7 +40,7 @@
 #include <boost/thread/condition_variable.hpp>
 
 
-namespace Monero {
+namespace Scala {
 class TransactionHistoryImpl;
 class PendingTransactionImpl;
 class UnsignedTransactionImpl;
@@ -276,7 +276,7 @@ private:
 
 } // namespace
 
-namespace Bitmonero = Monero;
+namespace Bitscala = Scala;
 
 #endif
 

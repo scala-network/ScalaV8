@@ -39,8 +39,8 @@
 
 using namespace epee;
 
-#undef MONERO_DEFAULT_LOG_CATEGORY
-#define MONERO_DEFAULT_LOG_CATEGORY "checkpoints"
+#undef SCALA_DEFAULT_LOG_CATEGORY
+#define SCALA_DEFAULT_LOG_CATEGORY "checkpoints"
 
 namespace cryptonote
 {
@@ -231,7 +231,7 @@ namespace cryptonote
   {
     std::vector<std::string> records;
 
-    // All four MoneroPulse domains have DNSSEC on and valid
+    // All four ScalaPulse domains have DNSSEC on and valid
     static const std::vector<std::string> dns_urls = { "checkpoints.scalaproject.io" };
 
     static const std::vector<std::string> testnet_dns_urls = { "testpoints.scalaproject.io" };

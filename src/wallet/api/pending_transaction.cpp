@@ -43,7 +43,7 @@
 
 using namespace std;
 
-namespace Monero {
+namespace Scala {
 
 PendingTransaction::~PendingTransaction() {}
 
@@ -264,5 +264,5 @@ std::vector<std::string> PendingTransactionImpl::signersKeys() const {
 
 }
 
-namespace Bitmonero = Monero;
+namespace Bitscala = Scala;
 

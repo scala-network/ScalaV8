@@ -35,7 +35,7 @@
 #include <vector>
 
 
-namespace Monero {
+namespace Scala {
 
 class WalletImpl;
 class PendingTransactionImpl : public PendingTransaction
@@ -74,4 +74,4 @@ private:
 
 }
 
-namespace Bitmonero = Monero;
+namespace Bitscala = Scala;
