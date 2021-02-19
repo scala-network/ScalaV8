@@ -312,7 +312,10 @@ endif()
 # elseif(CMAKE_SYSTEM_NAME MATCHES ".*BSDI.*")
 #   set(BSDI TRUE)
 
-include_directories(external/rapidjson/include external/easylogging++ src contrib/epee/include external external/supercop/include)
+include_directories(external/rapidjson/include external/easylogging++ src contrib/epee/include external external/supercop/include external/libipfs)
+#set(LIBIPFS_LIBRARIES "${CMAKE_SOURCE_DIR}/external/libipfs/libipfs.a")
+add_library(LIBIPFS_LIBRARIES SHARED IMPORTED)
+set_target_properties(LIBIPFS_LIBRARIES PROPERTIES IMPORTED_LOCATION "${CMAKE_SOURCE_DIR}/external/libipfs/libipfs.a")
 
 if(APPLE)
   include_directories(SYSTEM /usr/include/malloc)
@@ -916,7 +919,6 @@ elseif(NOT MSVC AND NOT DEPENDS)
 endif()
 
 list(APPEND EXTRA_LIBRARIES ${CMAKE_DL_LIBS})
-list(APPEND EXTRA_LIBRARIES ${CMAKE_SOURCE_DIR}/external/libipfs/libipfs.a)
 
 if (HIDAPI_FOUND OR LibUSB_COMPILE_TEST_PASSED)
   if (APPLE)

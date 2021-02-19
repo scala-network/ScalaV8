@@ -36,6 +36,7 @@
 #include "serialization/keyvalue_serialization.h"
 #include <functional>
 #include <vector>
+#include "libipfs/libipfs.h"
 
 using namespace epee;
 
