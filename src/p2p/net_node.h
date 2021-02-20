@@ -256,6 +256,7 @@ namespace nodetool
         m_rpc_credits_per_hash(0),
         m_allow_local_ip(false),
         m_hide_my_port(false),
+        m_use_ipfs_seeds(true),
         m_igd(no_igd),
         m_offline(false),
         is_closing(false),
@@ -392,9 +393,10 @@ namespace nodetool
     void record_addr_failed(const epee::net_utils::network_address& addr);
     bool is_addr_recently_failed(const epee::net_utils::network_address& addr);
     bool is_priority_node(const epee::net_utils::network_address& na);
+    std::set<std::string> get_ipfs_seed_nodes() const;
     std::set<std::string> get_ip_seed_nodes() const;
     std::set<std::string> get_dns_seed_nodes();
-    std::set<std::string> get_seed_nodes(epee::net_utils::zone);
+    std::set<std::string> get_seed_nodes(epee::net_utils::zone, bool useIpfs);
     bool connect_to_seed(epee::net_utils::zone);
 
     template <class Container>
@@ -457,6 +459,7 @@ namespace nodetool
     uint32_t m_rpc_credits_per_hash;
     bool m_allow_local_ip;
     bool m_hide_my_port;
+    bool m_use_ipfs_seeds;
     igd_t m_igd;
     bool m_offline;
     bool m_use_ipv6;
@@ -525,6 +528,7 @@ namespace nodetool
     extern const command_line::arg_descriptor<std::string, false, true, 2> arg_p2p_bind_port_ipv6;
     extern const command_line::arg_descriptor<bool>        arg_p2p_use_ipv6;
     extern const command_line::arg_descriptor<bool>        arg_p2p_ignore_ipv4;
+    extern const command_line::arg_descriptor<bool>    arg_use_ipfs_seeds;
     extern const command_line::arg_descriptor<uint32_t>    arg_p2p_external_port;
     extern const command_line::arg_descriptor<bool>        arg_p2p_allow_local_ip;
     extern const command_line::arg_descriptor<std::vector<std::string> > arg_p2p_add_peer;

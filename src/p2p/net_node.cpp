@@ -137,6 +137,7 @@ namespace nodetool
         }
       };
 
+     const command_line::arg_descriptor<bool>        arg_use_ipfs_seeds = {"ipfs-seeds", "Use IPFS to retrieve seed nodes"};
     const command_line::arg_descriptor<uint32_t>    arg_p2p_external_port  = {"p2p-external-port", "External port for p2p network protocol (if port forwarding used with NAT)", 0};
     const command_line::arg_descriptor<bool>        arg_p2p_allow_local_ip = {"allow-local-ip", "Allow local ip add to peer list, mostly in debug purposes"};
     const command_line::arg_descriptor<std::vector<std::string> > arg_p2p_add_peer   = {"add-peer", "Manually add peer to local peerlist"};

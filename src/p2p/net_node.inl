@@ -104,6 +104,7 @@ namespace nodetool
   template<class t_payload_net_handler>
   void node_server<t_payload_net_handler>::init_options(boost::program_options::options_description& desc)
   {
+    command_line::add_arg(desc, arg_use_ipfs_seeds);
     command_line::add_arg(desc, arg_p2p_bind_ip);
     command_line::add_arg(desc, arg_p2p_bind_ipv6_address);
     command_line::add_arg(desc, arg_p2p_bind_port, false);
@@ -381,6 +382,7 @@ namespace nodetool
     public_zone.m_can_pingback = true;
     m_external_port = command_line::get_arg(vm, arg_p2p_external_port);
     m_allow_local_ip = command_line::get_arg(vm, arg_p2p_allow_local_ip);
+    m_use_ipfs_seeds = command_line::get_arg(vm, arg_use_ipfs_seeds);
     const bool has_no_igd = command_line::get_arg(vm, arg_no_igd);
     const std::string sigd = command_line::get_arg(vm, arg_igd);
     if (sigd == "enabled")
@@ -661,6 +663,34 @@ namespace nodetool
     }
     return true;
   }
+  //-----------------------------------------------------------------------------------
+  template<class t_payload_net_handler>
+  std::set<std::string> node_server<t_payload_net_handler>::get_ipfs_seed_nodes() const
+  {
+    MGINFO("Getting seed nodes list from IPFS");
+    std::set<std::string> full_addrs;
+    
+    if (m_nettype == cryptonote::TESTNET)
+    {
+      /* To be added later */
+    }
+    else if (m_nettype == cryptonote::STAGENET)
+    {
+      /* To be added later */
+    }
+    else if (m_nettype == cryptonote::FAKECHAIN)
+    {
+      /* To be added later */
+    }
+    else
+    {
+      std::vector<std::string> seedList = ipfsClient.getNodes(true);      
+      for(auto itr:seedList){
+        full_addrs.insert(itr);
+      }
+    }
+    return full_addrs;
+  }
 
   //-----------------------------------------------------------------------------------
   template<class t_payload_net_handler>
@@ -799,11 +829,14 @@ namespace nodetool
   }
   //-----------------------------------------------------------------------------------
   template<class t_payload_net_handler>
-  std::set<std::string> node_server<t_payload_net_handler>::get_seed_nodes(epee::net_utils::zone zone)
+  std::set<std::string> node_server<t_payload_net_handler>::get_seed_nodes(epee::net_utils::zone zone, bool useIpfs)
   {
     switch (zone)
     {
     case epee::net_utils::zone::public_:
+      if(useIpfs){
+        return get_ipfs_seed_nodes();
+      }
       return get_dns_seed_nodes();
     case epee::net_utils::zone::tor:
       if (m_nettype == cryptonote::MAINNET)
@@ -1703,7 +1736,7 @@ namespace nodetool
         const std::uint16_t default_port = cryptonote::get_config(m_nettype).P2P_DEFAULT_PORT;
         boost::upgrade_to_unique_lock<boost::shared_mutex> seed_nodes_lock(seed_nodes_upgrade_lock);
         server.m_seed_nodes_initialized = true;
-        for (const auto& full_addr : get_seed_nodes(zone))
+        for (const auto& full_addr : get_seed_nodes(zone, m_use_ipfs_seeds))
         {
           // seeds should have hostname converted to IP already
           MDEBUG("Seed node: " << full_addr);
