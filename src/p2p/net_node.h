@@ -58,6 +58,7 @@
 #include "net/enums.h"
 #include "net/fwd.h"
 #include "common/command_line.h"
+#include "libipfs/client.hpp"
 
 PUSH_WARNINGS
 DISABLE_VS_WARNINGS(4355)
@@ -301,12 +302,9 @@ namespace nodetool
     virtual void clear_used_stripe_peers();
 
   private:
-    const std::vector<std::string> m_seed_nodes_list =
-    { "seeds.scalaseeds.se"
-    , "seeds.scalaseeds.ae.org"
-    , "seeds.scalaseeds.ch"
-    , "seeds.scalaseeds.li"
-    };
+    libipfsClient::utils ipfsClient;
+
+    const std::vector<std::string> m_seed_nodes_list = {};
 
     bool islimitup=false;
     bool islimitdown=false;

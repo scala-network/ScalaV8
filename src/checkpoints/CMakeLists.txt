@@ -61,5 +61,4 @@ target_link_libraries(checkpoints
     ${Boost_SYSTEM_LIBRARY}
     ${Boost_THREAD_LIBRARY}
   PRIVATE
-    ${LIBIPFS_LIBRARIES}
     ${EXTRA_LIBRARIES})

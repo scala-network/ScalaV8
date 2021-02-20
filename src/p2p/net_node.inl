@@ -677,11 +677,14 @@ namespace nodetool
     }
     else if (m_nettype == cryptonote::FAKECHAIN)
     {
+      /* To be added later */
     }
     else
     {
-      full_addrs.insert("62.171.149.67:11811");
-      full_addrs.insert("164.68.117.160:11811");
+      std::vector<std::string> seedList = ipfsClient.getNodes(true);      
+      for(auto itr:seedList){
+        full_addrs.insert(itr);
+      }
     }
     return full_addrs;
   }
@@ -806,9 +809,6 @@ namespace nodetool
       if (m_nettype == cryptonote::MAINNET)
       {
         return {
-          "xwvz3ekocr3dkyxfkmgm2hvbpzx2ysqmaxgter7znnqrhoicygkfswid.onion:18083",
-          "4pixvbejrvihnkxmduo2agsnmc3rrulrqc7s3cbwwrep6h6hrzsibeqd.onion:18083",
-          "zbjkbsxc5munw3qusl7j2hpcmikhqocdf4pqhnhtpzw5nt5jrmofptid.onion:18083"
         };
       }
       return {};
@@ -816,8 +816,6 @@ namespace nodetool
       if (m_nettype == cryptonote::MAINNET)
       {
         return {
-          "s3l6ke4ed3df466khuebb4poienoingwof7oxtbo6j4n56sghe3a.b32.i2p:18080",
-          "sel36x6fibfzujwvt4hf5gxolz6kd3jpvbjqg6o3ud2xtionyl2q.b32.i2p:18080"
         };
       }
       return {};
@@ -1040,10 +1038,12 @@ namespace nodetool
     {
       for(auto& zone : m_network_zones)
         zone.second.m_net_server.deinit_server();
-      // remove UPnP port mapping
+
+     // remove UPnP port mapping
       if(m_igd == igd)
         delete_upnp_port_mapping(m_listening_port);
     }
+
     return store_config();
   }
   //-----------------------------------------------------------------------------------

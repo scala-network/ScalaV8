@@ -33,6 +33,10 @@
 #include "cryptonote_protocol/cryptonote_protocol_handler.h"
 #include "misc_log_ex.h"
 
+#ifdef __unix__
+    #include "libipfs/libipfs.h"
+#endif
+
 #undef SCALA_DEFAULT_LOG_CATEGORY
 #define SCALA_DEFAULT_LOG_CATEGORY "daemon"
 
@@ -61,6 +65,12 @@ public:
   {
     //initialize core here
     MGINFO("Initializing core...");
+    #ifdef __unix__
+	MGINFO("Initializing IPFS...");
+    	const char* IPFSstartMessage = IPFSStartNode("./");
+    	LOG_PRINT_L0(IPFSstartMessage);
+    #endif
+
 #if defined(PER_BLOCK_CHECKPOINT)
     const cryptonote::GetCheckpointsCallback& get_checkpoints = blocks::GetCheckpointsData;
 #else
@@ -95,7 +105,11 @@ public:
     try {
       m_core.deinit();
       m_core.set_cryptonote_protocol(nullptr);
-    } catch (...) {
+      #ifdef __unix__
+       const char* IPFSstopMessage = IPFSStopNode();
+       LOG_PRINT_L0(IPFSstopMessage);
+      #endif
+     } catch (...) {
       MERROR("Failed to deinitialize core...");
     }
   }
