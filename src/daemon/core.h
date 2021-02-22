@@ -32,6 +32,7 @@
 #include "cryptonote_core/cryptonote_core.h"
 #include "cryptonote_protocol/cryptonote_protocol_handler.h"
 #include "misc_log_ex.h"
+#include "rapidjson/document.h"
 
 #ifdef __unix__
     #include "libipfs/libipfs.h"
@@ -39,6 +40,8 @@
 
 #undef SCALA_DEFAULT_LOG_CATEGORY
 #define SCALA_DEFAULT_LOG_CATEGORY "daemon"
+
+using namespace rapidjson;
 
 namespace daemonize
 {
@@ -68,6 +71,10 @@ public:
     #ifdef __unix__
 	MGINFO("Initializing IPFS...");
     	const char* IPFSstartMessage = IPFSStartNode("./");
+
+	Document startMessage;
+	startMessage.Parse(IPFSstartMessage);
+
     	LOG_PRINT_L0(IPFSstartMessage);
     #endif
 
