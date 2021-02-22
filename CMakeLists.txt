@@ -316,8 +316,7 @@ endif()
 include_directories(external/rapidjson/include external/easylogging++ src contrib/epee/include external external/supercop/include external/libipfs)
 
 if(UNIX)
-	set(LIBIPFS "${CMAKE_SOURCE_DIR}/external/libipfs/libipfs.a")
-	message(STATUS "Adding libipfs from ${LIBIPFS}")
+	set(LIBIPFS "${PROJECT_SOURCE_DIR}/external/libipfs/libipfs.a")
 endif()
 
 
