@@ -314,7 +314,8 @@ endif()
 #   set(BSDI TRUE)
 
 include_directories(external/rapidjson/include external/easylogging++ src contrib/epee/include external external/supercop/include external/libipfs/include)
-find_library(LIBIPFS ipfs "${CMAKE_SOURCE_DIR}/external/libipfs/")
+find_library(LIBIPFS ipfs "${CMAKE_SOURCE_DIR}/external/libipfs/" REQUIRED)
+message("${LIBIPFS} is path for libipfs")
 
 if(APPLE)
   include_directories(SYSTEM /usr/include/malloc)
