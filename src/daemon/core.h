@@ -35,7 +35,7 @@
 #include "rapidjson/document.h"
 
 #ifdef __unix__
-    #include "libipfs/libipfs.h"
+    #include "libipfs/include/libipfs.h"
 #endif
 
 #undef SCALA_DEFAULT_LOG_CATEGORY

@@ -313,12 +313,8 @@ endif()
 # elseif(CMAKE_SYSTEM_NAME MATCHES ".*BSDI.*")
 #   set(BSDI TRUE)
 
-include_directories(external/rapidjson/include external/easylogging++ src contrib/epee/include external external/supercop/include external/libipfs)
-
-if(UNIX)
-	set(LIBIPFS "${PROJECT_SOURCE_DIR}/external/libipfs/libipfs.a")
-endif()
-
+include_directories(external/rapidjson/include external/easylogging++ src contrib/epee/include external external/supercop/include external/libipfs/include)
+find_library(LIBIPFS ipfs "${CMAKE_SOURCE_DIR}/external/libipfs/")
 
 if(APPLE)
   include_directories(SYSTEM /usr/include/malloc)
