@@ -320,7 +320,6 @@ if(UNIX)
 	message(STATUS "Adding libipfs from ${LIBIPFS}")
 endif()
 
-
 if(APPLE)
   include_directories(SYSTEM /usr/include/malloc)
   if(POLICY CMP0042)
