@@ -1,4 +1,4 @@
-name: continuous-integration/gh-actions/cli
+name: ci/build-test
 
 on: [push, pull_request]
 
