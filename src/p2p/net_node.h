@@ -58,7 +58,7 @@
 #include "net/enums.h"
 #include "net/fwd.h"
 #include "common/command_line.h"
-#include "libipfs/client.hpp"
+#include "libipfs/include/client.hpp"
 
 PUSH_WARNINGS
 DISABLE_VS_WARNINGS(4355)

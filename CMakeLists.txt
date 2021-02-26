@@ -313,11 +313,20 @@ endif()
 # elseif(CMAKE_SYSTEM_NAME MATCHES ".*BSDI.*")
 #   set(BSDI TRUE)
 
-include_directories(external/rapidjson/include external/easylogging++ src contrib/epee/include external external/supercop/include external/libipfs)
+include_directories(external/rapidjson/include external/easylogging++ src contrib/epee/include external external/supercop/include external/include/libipfs)
 
-if(UNIX)
-	set(LIBIPFS "${CMAKE_SOURCE_DIR}/external/libipfs/libipfs.a")
-	message(STATUS "Adding libipfs from ${LIBIPFS}")
+# Find the libipfs library for each platform
+
+if(LINUX)
+    find_library(LIBIPFS NAMES libipfs-linux PATHS "${CMAKE_SOURCE_DIR}/external/libipfs" REQUIRED)
+elseif(MACOS OR APPLE)
+    find_library(LIBIPFS NAMES libipfs-macos PATHS "${CMAKE_SOURCE_DIR}/external/libipfs" REQUIRED)
+else()
+    find_library(LIBIPFS NAMES libipfs-windows PATHS "${CMAKE_SOURCE_DIR}/external/libipfs" REQUIRED)
+endif()
+
+if(APPLE)
+set(LIBIPFS "${CMAKE_SOURCE_DIR}/external/libipfs/libipfs.a")
 endif()
 
 if(APPLE)
