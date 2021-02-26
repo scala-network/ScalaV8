@@ -315,16 +315,6 @@ endif()
 
 include_directories(external/rapidjson/include external/easylogging++ src contrib/epee/include external external/supercop/include external/include/libipfs)
 
-# Find the libipfs library for each platform
-
-if(UNIX AND NOT APPLE)
-    find_library(LIBIPFS NAMES ipfs-linux PATHS "${CMAKE_SOURCE_DIR}/external/libipfs" REQUIRED)
-elseif(MACOS OR APPLE)
-    find_library(LIBIPFS NAMES ipfs-macos PATHS "${CMAKE_SOURCE_DIR}/external/libipfs" REQUIRED)
-else()
-    find_library(LIBIPFS NAMES ipfs-windows PATHS "${CMAKE_SOURCE_DIR}/external/libipfs" REQUIRED)
-endif()
-
 if(APPLE)
   include_directories(SYSTEM /usr/include/malloc)
   if(POLICY CMP0042)
@@ -1064,4 +1054,14 @@ if (iwyu_tool_path AND PYTHONINTERP_FOUND)
     COMMENT "Running include-what-you-use tool"
     VERBATIM
   )
+endif()
+
+# Find the libipfs library for each platform
+
+if(UNIX AND NOT APPLE)
+    find_library(LIBIPFS NAMES ipfs-linux PATHS "${CMAKE_SOURCE_DIR}/external/libipfs" REQUIRED)
+elseif(MACOS OR APPLE)
+    find_library(LIBIPFS NAMES ipfs-macos PATHS "${CMAKE_SOURCE_DIR}/external/libipfs" REQUIRED)
+else()
+    find_library(LIBIPFS NAMES ipfs-windows PATHS "${CMAKE_SOURCE_DIR}/external/libipfs" REQUIRED)
 endif()
