@@ -313,7 +313,33 @@ endif()
 # elseif(CMAKE_SYSTEM_NAME MATCHES ".*BSDI.*")
 #   set(BSDI TRUE)
 
+if(MSVC OR MINGW)
+  set(DEFAULT_STATIC true)
+else()
+  set(DEFAULT_STATIC false)
+endif()
+option(STATIC "Link libraries statically" ${DEFAULT_STATIC})
+
+if(STATIC)
+  if(MSVC OR MINGW)
+    set(CMAKE_FIND_LIBRARY_SUFFIXES .lib .dll.a .a ${CMAKE_FIND_LIBRARY_SUFFIXES})
+  else()
+    set(CMAKE_FIND_LIBRARY_SUFFIXES .a ${CMAKE_FIND_LIBRARY_SUFFIXES})
+  endif()
+  set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -DZMQ_STATIC")
+endif()
+
 include_directories(external/rapidjson/include external/easylogging++ src contrib/epee/include external external/supercop/include external/include/libipfs)
+
+# Find the libipfs library for each platform
+if(UNIX AND NOT APPLE)
+    find_library(LIBIPFS NAMES ipfs-linux PATHS "${CMAKE_SOURCE_DIR}/external/libipfs" REQUIRED)
+elseif(MACOS OR APPLE)
+    find_library(LIBIPFS NAMES ipfs-macos PATHS "${CMAKE_SOURCE_DIR}/external/libipfs" REQUIRED)
+else()
+    # TODO - find library fails on windows
+    set(LIBIPFS "${CMAKE_SOURCE_DIR}/external/libipfs/libipfs-windows.a")
+endif()
 
 if(APPLE)
   include_directories(SYSTEM /usr/include/malloc)
@@ -321,13 +347,6 @@ if(APPLE)
     cmake_policy(SET CMP0042 NEW)
   endif()
 endif()
-
-if(MSVC OR MINGW)
-  set(DEFAULT_STATIC true)
-else()
-  set(DEFAULT_STATIC false)
-endif()
-option(STATIC "Link libraries statically" ${DEFAULT_STATIC})
 
 # This is a CMake built-in switch that concerns internal libraries
 if (NOT DEFINED BUILD_SHARED_LIBS AND NOT STATIC AND CMAKE_BUILD_TYPE_LOWER STREQUAL "debug")
@@ -353,15 +372,6 @@ if(MINGW)
   set(DEFLIB ${msys2_install_path}/mingw${ARCH_WIDTH}/lib)
   list(REMOVE_ITEM CMAKE_C_IMPLICIT_LINK_DIRECTORIES ${DEFLIB})
   list(REMOVE_ITEM CMAKE_CXX_IMPLICIT_LINK_DIRECTORIES ${DEFLIB})
-endif()
-
-if(STATIC)
-  if(MSVC)
-    set(CMAKE_FIND_LIBRARY_SUFFIXES .lib .dll.a .a ${CMAKE_FIND_LIBRARY_SUFFIXES})
-  else()
-    set(CMAKE_FIND_LIBRARY_SUFFIXES .a ${CMAKE_FIND_LIBRARY_SUFFIXES})
-  endif()
-  set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -DZMQ_STATIC")
 endif()
 
 if(SANITIZE)
@@ -1054,14 +1064,4 @@ if (iwyu_tool_path AND PYTHONINTERP_FOUND)
     COMMENT "Running include-what-you-use tool"
     VERBATIM
   )
-endif()
-
-# Find the libipfs library for each platform
-
-if(UNIX AND NOT APPLE)
-    find_library(LIBIPFS NAMES ipfs-linux PATHS "${CMAKE_SOURCE_DIR}/external/libipfs" REQUIRED)
-elseif(MACOS OR APPLE)
-    find_library(LIBIPFS NAMES ipfs-macos PATHS "${CMAKE_SOURCE_DIR}/external/libipfs" REQUIRED)
-else()
-    find_library(LIBIPFS NAMES ipfs-windows PATHS "${CMAKE_SOURCE_DIR}/external/libipfs" REQUIRED)
 endif()
