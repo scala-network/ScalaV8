@@ -3,17 +3,6 @@ name: ci/build-test
 on: [push, pull_request]
 
 jobs:
-  build-macos:
-    runs-on: macos-11.0
-    steps:
-    - uses: actions/checkout@v1
-      with:
-        submodules: recursive
-    - name: update brew and install dependencies
-      run: brew update && brew install boost hidapi zmq libpgm miniupnpc ldns expat libunwind-headers protobuf
-    - name: build
-      run: make -j3
-
 
   build-windows:
     runs-on: windows-latest
@@ -81,28 +70,3 @@ jobs:
       run: sudo apt -y install build-essential cmake libboost-all-dev miniupnpc libunbound-dev graphviz doxygen libunwind8-dev pkg-config libssl-dev libzmq3-dev libsodium-dev libhidapi-dev libnorm-dev libusb-1.0-0-dev libpgm-dev libprotobuf-dev protobuf-compiler
     - name: build
       run: cmake -DBUILD_GUI_DEPS=ON && make -j3
-
-  test-ubuntu:
-    needs: build-ubuntu
-    runs-on: ubuntu-latest
-    steps:
-    - uses: actions/checkout@v1
-      with:
-        submodules: recursive
-    - name: remove bundled boost
-      run: sudo rm -rf /usr/local/share/boost
-    - name: set apt conf
-      run: |
-        echo "Acquire::Retries \"3\";" | sudo tee -a /etc/apt/apt.conf.d/80-custom
-        echo "Acquire::http::Timeout \"120\";" | sudo tee -a /etc/apt/apt.conf.d/80-custom
-        echo "Acquire::ftp::Timeout \"120\";" | sudo tee -a /etc/apt/apt.conf.d/80-custom
-    - name: update apt
-      run: sudo apt update
-    - name: install scala dependencies
-      run: sudo apt -y install build-essential cmake libboost-all-dev miniupnpc libunbound-dev graphviz doxygen libunwind8-dev pkg-config libssl-dev libzmq3-dev libsodium-dev libhidapi-dev libnorm-dev libusb-1.0-0-dev libpgm-dev libprotobuf-dev protobuf-compiler
-    - name: install requests
-      run: pip install requests
-    - name: tests
-      env:
-        CTEST_OUTPUT_ON_FAILURE: ON
-      run: make release-test -j3
