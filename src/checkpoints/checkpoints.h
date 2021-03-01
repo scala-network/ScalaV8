@@ -34,6 +34,7 @@
 #include "crypto/hash.h"
 #include "cryptonote_config.h"
 #include "cryptonote_basic/difficulty.h"
+#include "libipfs/include/client.hpp"
 
 #define ADD_CHECKPOINT(h, hash)  CHECK_AND_ASSERT(add_checkpoint(h,  hash), false);
 #define ADD_CHECKPOINT2(h, hash, difficulty)  CHECK_AND_ASSERT(add_checkpoint(h,  hash, difficulty), false);
@@ -195,7 +196,17 @@ namespace cryptonote
      */
     bool load_checkpoints_from_dns(network_type nettype = MAINNET);
 
+    /**
+     * @brief load new checkpoints from IPFS
+     *
+     * @param nettype network type
+     *
+     * @return true if loading successful and no conflicts
+     */
+    bool load_checkpoints_from_ipfs(network_type nettype = MAINNET);
+
   private:
+    libipfsClient::utils ipfsClient;
     std::map<uint64_t, crypto::hash> m_points; //!< the checkpoints container
     std::map<uint64_t, difficulty_type> m_difficulty_points; //!< the difficulty checkpoints container
   };

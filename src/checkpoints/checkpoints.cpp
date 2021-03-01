@@ -36,6 +36,8 @@
 #include "serialization/keyvalue_serialization.h"
 #include <functional>
 #include <vector>
+#include <algorithm>
+#include <typeinfo>
 
 using namespace epee;
 
@@ -188,6 +190,9 @@ namespace cryptonote
     {
       return true;
     }
+    
+    load_checkpoints_from_ipfs();
+
     return true;
   }
 
@@ -268,6 +273,37 @@ namespace cryptonote
         ADD_CHECKPOINT(height, hashStr);
       }
     }
+    return true;
+  }
+
+  bool checkpoints::load_checkpoints_from_ipfs(network_type nettype)
+  {    
+      std::string record = ipfsClient.getLastCheckpoint();
+      record.erase(remove(record.begin(), record.end(), '\"' ), record.end()); /* Remove quotes from string (the hash always comes with quotes for some reason)*/
+
+      if (record.find("error") != std::string::npos) {
+        MGINFO("LdPoW nodes returned different checkpoints, skipping.");
+        return true;
+      }
+
+      auto pos = record.find(":");
+      if (pos != std::string::npos)
+      {
+          uint64_t height;
+          crypto::hash hash;
+
+          std::stringstream ss(record.substr(0, pos));
+          ss >> height;
+          std::string hashStr = record.substr(pos + 1);
+          if (!epee::string_tools::hex_to_pod(hashStr, hash))
+          {
+            MGINFO("LdPoW nodes returned bad checkpoints, skipping.");
+            return true;
+          }
+
+          MGINFO("LdPoW nodes reported same checkpoint for height " << height);
+          ADD_CHECKPOINT(height, hashStr);
+      }
     return true;
   }
 
