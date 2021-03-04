@@ -40,7 +40,9 @@ set(wallet_api_sources
   address_book.cpp
   subaddress.cpp
   subaddress_account.cpp
-  unsigned_transaction.cpp)
+  unsigned_transaction.cpp
+  coins.cpp
+  coins_info.cpp)
 
 set(wallet_api_headers
     wallet2_api.h)

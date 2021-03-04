@@ -182,9 +182,11 @@ struct TransactionInfo
     virtual int  direction() const = 0;
     virtual bool isPending() const = 0;
     virtual bool isFailed() const = 0;
+    virtual bool isCoinbase() const = 0;
     virtual uint64_t amount() const = 0;
     virtual uint64_t fee() const = 0;
     virtual uint64_t blockHeight() const = 0;
+    virtual std::string description() const = 0;
     virtual std::set<uint32_t> subaddrIndex() const = 0;
     virtual uint32_t subaddrAccount() const = 0;
     virtual std::string label() const = 0;
@@ -196,6 +198,7 @@ struct TransactionInfo
     virtual std::string paymentId() const = 0;
     //! only applicable for output transactions
     virtual const std::vector<Transfer> & transfers() const = 0;
+    virtual const std::vector<std::pair<std::string, std::vector<uint64_t>>> & rings() const = 0;
 };
 /**
  * @brief The TransactionHistory - interface for displaying transaction history
@@ -208,6 +211,7 @@ struct TransactionHistory
     virtual TransactionInfo * transaction(const std::string &id) const = 0;
     virtual std::vector<TransactionInfo*> getAll() const = 0;
     virtual void refresh() = 0;
+    virtual void setTxNote(const std::string &txid, const std::string &note) = 0;
 };
 
 /**
@@ -250,28 +254,74 @@ struct AddressBook
     virtual std::vector<AddressBookRow*> getAll() const = 0;
     virtual bool addRow(const std::string &dst_addr , const std::string &payment_id, const std::string &description) = 0;  
     virtual bool deleteRow(std::size_t rowId) = 0;
-    virtual void refresh() = 0;  
+    virtual bool setDescription(std::size_t index, const std::string &description) = 0;
+    virtual void refresh() = 0;
     virtual std::string errorString() const = 0;
     virtual int errorCode() const = 0;
     virtual int lookupPaymentID(const std::string &payment_id) const = 0;
 };
 
+
+/**
+ * @brief The CoinsInfo - interface for displaying coins information
+ */
+struct CoinsInfo
+{
+    virtual ~CoinsInfo() = 0;
+
+    virtual uint64_t blockHeight() const = 0;
+    virtual std::string hash() const = 0;
+    virtual size_t internalOutputIndex() const = 0;
+    virtual uint64_t globalOutputIndex() const = 0;
+    virtual bool spent() const = 0;
+    virtual bool frozen() const = 0;
+    virtual uint64_t spentHeight() const = 0;
+    virtual uint64_t amount() const = 0;
+    virtual bool rct() const = 0;
+    virtual bool keyImageKnown() const = 0;
+    virtual size_t pkIndex() const = 0;
+    virtual uint32_t subaddrIndex() const = 0;
+    virtual uint32_t subaddrAccount() const = 0;
+    virtual std::string address() const = 0;
+    virtual std::string addressLabel() const = 0;
+    virtual std::string keyImage() const = 0;
+    virtual uint64_t unlockTime() const = 0;
+    virtual bool unlocked() const = 0;
+    virtual std::string pubKey() const = 0;
+    virtual bool coinbase() const = 0;
+};
+
+struct Coins
+{
+    virtual ~Coins() = 0;
+    virtual int count() const = 0;
+    virtual CoinsInfo * coin(int index)  const = 0;
+    virtual std::vector<CoinsInfo*> getAll() const = 0;
+    virtual void refresh() = 0;
+    virtual void setFrozen(int index) = 0;
+    virtual void thaw(int index) = 0;
+    virtual bool isTransferUnlocked(uint64_t unlockTime, uint64_t blockHeight) = 0;
+};
+
 struct SubaddressRow {
 public:
-    SubaddressRow(std::size_t _rowId, const std::string &_address, const std::string &_label):
+    SubaddressRow(std::size_t _rowId, const std::string &_address, const std::string &_label, bool _used):
         m_rowId(_rowId),
         m_address(_address),
-        m_label(_label) {}
+        m_label(_label),
+        m_used(_used) {}
  
 private:
     std::size_t m_rowId;
     std::string m_address;
     std::string m_label;
+    bool m_used;
 public:
     std::string extra;
     std::string getAddress() const {return m_address;}
     std::string getLabel() const {return m_label;}
     std::size_t getRowId() const {return m_rowId;}
+    bool isUsed() const {return m_used;}
 };
 
 struct Subaddress
@@ -858,6 +908,18 @@ struct Wallet
                                                    uint32_t subaddr_account = 0,
                                                    std::set<uint32_t> subaddr_indices = {}) = 0;
 
+     /*!
+     * \brief createTransactionSingle creates transaction with single input
+     * \param key_image               key image as string
+     * \param dst_addr                destination address as string
+     * \param priority
+     * \return                        PendingTransaction object. caller is responsible to check PendingTransaction::status()
+     *                                after object returned
+     */
+
+    virtual PendingTransaction * createTransactionSingle(const std::string &key_image, const std::string &dst_addr,
+            size_t outputs = 1, PendingTransaction::Priority = PendingTransaction::Priority_Low) = 0;
+ 
     /*!
      * \brief createSweepUnmixableTransaction creates transaction with unmixable outputs.
      * \return                  PendingTransaction object. caller is responsible to check PendingTransaction::status()
@@ -911,6 +973,7 @@ struct Wallet
 
     virtual TransactionHistory * history() = 0;
     virtual AddressBook * addressBook() = 0;
+    virtual Coins * coins() = 0;
     virtual Subaddress * subaddress() = 0;
     virtual SubaddressAccount * subaddressAccount() = 0;
     virtual void setListener(WalletListener *) = 0;
@@ -969,7 +1032,7 @@ struct Wallet
      * \param message - the message to sign (arbitrary byte data)
      * \return the signature
      */
-    virtual std::string signMessage(const std::string &message) = 0;
+    virtual std::string signMessage(const std::string &message, const std::string &address = "") = 0;
     /*!
      * \brief verifySignedMessage - verify a signature matches a given message
      * \param message - the message (arbitrary byte data)
@@ -1160,6 +1223,25 @@ struct WalletManager
     {
         return createWalletFromKeys(path, password, language, testnet ? TESTNET : MAINNET, restoreHeight, addressString, viewKeyString, spendKeyString);
     }
+
+    /*!
+     * \brief  recover deterministic wallet from spend key.
+     * \param  path           Name of wallet file to be created
+     * \param  password       Password of wallet file
+     * \param  language       language
+     * \param  nettype        Network type
+     * \param  restoreHeight  restore from start height
+     * \param  spendKeyString spend key
+     * \param  kdf_rounds     Number of rounds for key derivation function
+     * \return                Wallet instance (Wallet::status() needs to be called to check if recovered successfully)
+     */
+    virtual Wallet * createDeterministicWalletFromSpendKey(const std::string &path,
+                                                           const std::string &password,
+                                                           const std::string &language,
+                                                           NetworkType nettype,
+                                                           uint64_t restoreHeight,
+                                                           const std::string &spendKeyString,
+                                                           uint64_t kdf_rounds = 1) = 0;
 
    /*!
     * \deprecated this method creates a wallet WITHOUT a passphrase, use createWalletFromKeys(..., password, ...) instead
