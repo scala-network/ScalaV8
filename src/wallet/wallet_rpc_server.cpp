@@ -101,7 +101,7 @@ namespace
     {
       const uint64_t now = time(NULL);
       if (unlock_time > now)
-        entry.suggested_confirmations_threshold = std::max(entry.suggested_confirmations_threshold, (unlock_time - now + DIFFICULTY_TARGET_V2 - 1) / DIFFICULTY_TARGET_V2);
+        entry.suggested_confirmations_threshold = std::max(entry.suggested_confirmations_threshold, (unlock_time - now + DIFFICULTY_TARGET - 1) / DIFFICULTY_TARGET);
     }
   }
 }

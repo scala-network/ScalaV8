@@ -56,12 +56,12 @@ static int test_wide_difficulty(const char *filename)
     size_t n = 0;
     while (data >> timestamp >> difficulty) {
         size_t begin, end;
-        if (n < DIFFICULTY_WINDOW + DIFFICULTY_LAG) {
+        if (n < DIFFICULTY_WINDOW_NEW + DIFFICULTY_LAG) {
             begin = 0;
-            end = min(n, (size_t) DIFFICULTY_WINDOW);
+            end = min(n, (size_t) DIFFICULTY_WINDOW_NEW);
         } else {
             end = n - DIFFICULTY_LAG;
-            begin = end - DIFFICULTY_WINDOW;
+            begin = end - DIFFICULTY_WINDOW_NEW;
         }
         cryptonote::difficulty_type res = cryptonote::next_difficulty(
             std::vector<uint64_t>(timestamps.begin() + begin, timestamps.begin() + end),
@@ -105,12 +105,12 @@ int main(int argc, char *argv[]) {
     size_t n = 0;
     while (data >> timestamp >> difficulty) {
         size_t begin, end;
-        if (n < DIFFICULTY_WINDOW + DIFFICULTY_LAG) {
+        if (n < DIFFICULTY_WINDOW_NEW + DIFFICULTY_LAG) {
             begin = 0;
-            end = min(n, (size_t) DIFFICULTY_WINDOW);
+            end = min(n, (size_t) DIFFICULTY_WINDOW_NEW);
         } else {
             end = n - DIFFICULTY_LAG;
-            begin = end - DIFFICULTY_WINDOW;
+            begin = end - DIFFICULTY_WINDOW_NEW;
         }
         uint64_t res = cryptonote::next_difficulty_64(
             vector<uint64_t>(timestamps.begin() + begin, timestamps.begin() + end),

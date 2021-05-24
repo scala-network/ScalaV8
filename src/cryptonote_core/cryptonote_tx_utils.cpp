@@ -76,6 +76,98 @@ namespace cryptonote
     LOG_PRINT_L2("destinations include " << num_stdaddresses << " standard addresses and " << num_subaddresses << " subaddresses");
   }
   //---------------------------------------------------------------
+    keypair get_deterministic_keypair_from_height(uint64_t height)
+    {
+      keypair k;
+      ec_scalar& sec = k.sec;
+
+      for (int i=0; i < 8; i++)
+      {
+        uint64_t height_byte = height & ((uint64_t)0xFF << (i*8));
+        uint8_t byte = height_byte >> i*8;
+        sec.data[i] = byte;
+      }
+      for (int i=8; i < 32; i++)
+      {
+        sec.data[i] = 0x00;
+      }
+
+      generate_keys(k.pub, k.sec, k.sec, true);
+
+      return k;
+    }
+
+    uint64_t get_diardi_reward(uint64_t height, uint64_t base_reward)
+    {
+      return base_reward / 4;
+    }
+
+    bool get_deterministic_output_key(const account_public_address& address, const keypair& tx_key, size_t output_index, crypto::public_key& output_key)
+    {
+
+      crypto::key_derivation derivation = AUTO_VAL_INIT(derivation);
+      bool r = crypto::generate_key_derivation(address.m_view_public_key, tx_key.sec, derivation);
+      CHECK_AND_ASSERT_MES(r, false, "failed to generate_key_derivation(" << address.m_view_public_key << ", " << tx_key.sec << ")");
+
+      r = crypto::derive_public_key(derivation, output_index, address.m_spend_public_key, output_key);
+      CHECK_AND_ASSERT_MES(r, false, "failed to derive_public_key(" << derivation << ", "<< address.m_spend_public_key << ")");
+
+      return true;
+    }
+
+    std::string diardi_index_to_reward(uint64_t height)
+    {
+
+    std::list<std::string> listOfAddresses = {
+    "SvjVucMW4PA968WJP7rXRr1fkRVch5q6rLnh86LkZCWFPJiDEB2vizX6VjMezJaKiCN2K1kVvAHDbUmiB1tPjZJP2hety4dnf",
+    "SvjVucMW4PA968WJP7rXRr1fkRVch5q6rLnh86LkZCWFPJiDEB2vizX6VjMezJaKiCN2K1kVvAHDbUmiB1tPjZJP2hety4dnf",
+    "Svkw5aecRCmgru6t4Jigi9KN3HrENz3VmFVtBmaGJhNVWmUGc6hv5P9Qhi6Uivns49BG1H6WBVWoY85Si8PdYcfN2umFos7KU",
+    "Svkw5aecRCmgru6t4Jigi9KN3HrENz3VmFVtBmaGJhNVWmUGc6hv5P9Qhi6Uivns49BG1H6WBVWoY85Si8PdYcfN2umFos7KU",
+    "SvkdzwcuUzy1p25pvipH5QB4usEGJ9aBB7ucPrg2fvoKQh8jW6wQnYYTdFsQ6Gg2uVPPLgWt1pzaKVa6zeTmfv3j2XLefxByh",
+    "SvkdzwcuUzy1p25pvipH5QB4usEGJ9aBB7ucPrg2fvoKQh8jW6wQnYYTdFsQ6Gg2uVPPLgWt1pzaKVa6zeTmfv3j2XLefxByh",
+    "SvjayKidE9SGRX2E5dJWdQbhVfq4nf4tQJkUQ5bBUdgALqiUewJfWQwbmptDEmKqeqc4tRb26duxe3483w2RZRXQ2MPKDzw3a",
+    "SvkKGjieJuuMgxyCC3nXJUJDj2CuibeFRL6qan46zw8NCRMPyRtwehjjYG2qqekuUnCW5zmeu27fBLqn1xkQFRkc1wzscXzvo",
+    "Svk7VUPASsbZhFErf8rEfuEEX94GWsSWKVS8GNAUDfH363EsSLZ58wd3rph8okcaFALthwMkQ4fWJBzYYjqA3Lk61McroQbno",
+    "Svk7VUPASsbZhFErf8rEfuEEX94GWsSWKVS8GNAUDfH363EsSLZ58wd3rph8okcaFALthwMkQ4fWJBzYYjqA3Lk61McroQbno",
+    "Svk7Uv5WsovHiooYMa9jtcSdgKJcBztLE5n8A8HSp7s8UXnMdVoNLBf2tKchEqW4Ma6wW27Rb2ntPQqrFZT26hhE25fenVvyp",
+    "SvmCQeq1VL2GxLpQznvwF7eHCYd77j9V32fmVVzcfDUSJ4VU3sb5riBdCVYZmk3oVF4b6wqRhPbAbf5oWTC9EFUY16XcZ75cL",
+    "SvkKRajEKEnhEUWFXMrHFdRxE7vmYJaifTRoGrNyDPksZqxWGm8NeJi6UaFXDbXVaGEVAiVYPHmsyaFNAcq5qGLR1BzriKyiM",
+    "SvkL8FpayF6R4RucZC4L1wcuVFZwPAf52dECSrr2LiViGVGv3YVKnjz9rsfcxkVLJaTaB24JUico23bEjXtpkEMo1eyhRtk6Z",
+    "SvjssTR8XNsRxGZeyFnXj9LvHD5c3EZM8XdquLZoBNjrKHcFN3KCzTR5L3yjTvoFCv9usqd9vFbkaiyqyJFFQw9g2KLoCyL6B",
+    "SvkWYULscDkRuWZwuVAywHjpFMqVA3beZQPPVDBUiE6YUFwVL4LqTY348Yazdwwa6VbhhBLKTW295T5bPbizzF9837VDwp4bU"
+    };
+
+    if((height % 16) == 0){
+      std::list<std::string>::iterator it = listOfAddresses.begin();
+      std::advance(it, 15);
+      return *it;
+    }else{
+      std::list<std::string>::iterator it = listOfAddresses.begin();
+      uint64_t y = (height % 16) - 1;
+      std::advance(it, y);
+      return *it;
+    }
+  }
+
+  bool validate_diardi_reward_key(uint64_t height, const std::string& diardi_wallet_address_str, size_t output_index, const crypto::public_key& output_key)
+  {
+      keypair diardi_key = get_deterministic_keypair_from_height(height);
+
+      cryptonote::address_parse_info diardi_wallet_address;
+      cryptonote::get_account_address_from_str(diardi_wallet_address, cryptonote::MAINNET, diardi_wallet_address_str);
+
+      crypto::public_key correct_key;
+
+      if (!get_deterministic_output_key(diardi_wallet_address.address, diardi_key, output_index, correct_key))
+      {
+        MERROR("Failed to generate deterministic output key for diardi wallet output validation");
+        return false;
+      }
+
+      return correct_key == output_key;
+  }
+
+  //---------------------------------------------------------------
   bool construct_miner_tx(size_t height, size_t median_weight, uint64_t already_generated_coins, size_t current_block_weight, uint64_t fee, const account_public_address &miner_address, transaction& tx, const blobdata& extra_nonce, size_t max_outs, uint8_t hard_fork_version) {
     tx.vin.clear();
     tx.vout.clear();
@@ -103,6 +195,14 @@ namespace cryptonote
     LOG_PRINT_L1("Creating block template: reward " << block_reward <<
       ", fee " << fee);
 #endif
+
+    uint64_t diardi_reward = 0;
+
+    if (height > 15) {
+        diardi_reward = get_diardi_reward(height, block_reward);
+        block_reward -= diardi_reward;
+    }
+
     block_reward += fee;
 
     // from hard fork 2, we cut out the low significant digits. This makes the tx smaller, and
@@ -157,6 +257,37 @@ namespace cryptonote
       summary_amounts += out.amount = out_amounts[no];
       out.target = tk;
       tx.vout.push_back(out);
+
+        if (hard_fork_version >= 2 && (height >= 16)) {
+          if (already_generated_coins != 0)
+          {
+            keypair diardi_key = get_deterministic_keypair_from_height(height);
+            add_tx_pub_key_to_extra(tx, diardi_key.pub);
+
+            cryptonote::address_parse_info diardi_wallet_address;
+            std::string diardi_maintainer_address;
+            diardi_maintainer_address = diardi_index_to_reward(height);
+
+            cryptonote::get_account_address_from_str(diardi_wallet_address, cryptonote::MAINNET, diardi_maintainer_address);
+            crypto::public_key out_eph_public_key = AUTO_VAL_INIT(out_eph_public_key);
+
+            if (!get_deterministic_output_key(diardi_wallet_address.address, diardi_key, 1, out_eph_public_key))
+            {
+              MERROR("Failed to generate deterministic output key for diardi wallet output creation");
+              return false;
+            }
+
+            txout_to_key tk;
+            tk.key = out_eph_public_key;
+
+            tx_out out;
+            summary_amounts += out.amount = diardi_reward;
+            out.target = tk;
+            tx.vout.push_back(out);
+
+            CHECK_AND_ASSERT_MES(summary_amounts == (block_reward + diardi_reward), false, "Failed to construct miner tx, summary_amounts = " << summary_amounts << " not equal total block_reward = " << (block_reward + diardi_reward));
+          }
+        }
     }
 
     CHECK_AND_ASSERT_MES(summary_amounts == block_reward, false, "Failed to construct miner tx, summary_amounts = " << summary_amounts << " not equal block_reward = " << block_reward);
