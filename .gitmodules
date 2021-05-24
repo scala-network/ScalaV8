@@ -11,10 +11,6 @@
 [submodule "external/trezor-common"]
 	path = external/trezor-common
 	url = https://github.com/trezor/trezor-common.git
-[submodule "external/supercop"]
-	path = external/supercop
-	url = https://github.com/monero-project/supercop
-	branch = monero
 [submodule "external/randomx"]
 	path = external/randomx
 	url = https://github.com/scala-network/Panthera
