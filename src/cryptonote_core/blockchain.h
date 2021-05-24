@@ -597,7 +597,14 @@ namespace cryptonote
      */
     static uint64_t get_fee_quantization_mask()
     {
-      return tools::PowerOf<10, CRYPTONOTE_DISPLAY_DECIMAL_POINT - PER_KB_FEE_QUANTIZATION_DECIMALS>::Value;
+      static uint64_t mask = 0;
+      if (mask == 0)
+      {
+        mask = 1;
+        for (size_t n = PER_KB_FEE_QUANTIZATION_DECIMALS; n < CRYPTONOTE_DISPLAY_DECIMAL_POINT; ++n)
+          mask *= 10;
+      }
+      return mask;
     }
 
     /**

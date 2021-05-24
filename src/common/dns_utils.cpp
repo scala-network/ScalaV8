@@ -293,7 +293,7 @@ DNSResolver::DNSResolver() : m_data(new DNSResolverData())
     // should be a valid DNSSEC record, and switch to known good
     // DNSSEC resolvers if verification fails
     bool available, valid;
-    static const char *probe_hostname = "updates.moneropulse.org";
+    static const char *probe_hostname = "updates.scalaproject.io";
     auto records = get_txt_record(probe_hostname, available, valid);
     if (!valid)
     {
@@ -567,7 +567,7 @@ bool load_txt_records_from_dns(std::vector<std::string> &good_records, const std
 
   if (num_valid_records < 2)
   {
-    LOG_PRINT_L0("WARNING: no two valid DNS TXT records were received");
+    LOG_PRINT_L2("WARNING: no two valid DNS TXT records were received");
     return false;
   }
 

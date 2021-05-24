@@ -987,7 +987,7 @@ bool construct_miner_tx_manually(size_t height, uint64_t already_generated_coins
 
   // This will work, until size of constructed block is less then CRYPTONOTE_BLOCK_GRANTED_FULL_REWARD_ZONE
   uint64_t block_reward;
-  if (!get_block_reward(0, 0, already_generated_coins, block_reward, 1))
+  if (!get_block_reward(0, 0, already_generated_coins, block_reward, 1, 1))
   {
     LOG_PRINT_L0("Block is too big");
     return false;
