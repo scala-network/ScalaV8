@@ -44,8 +44,8 @@
 #include "string_tools.h"
 
 
-#undef MONERO_DEFAULT_LOG_CATEGORY
-#define MONERO_DEFAULT_LOG_CATEGORY "wallet.mms"
+#undef SCALA_DEFAULT_LOG_CATEGORY
+#define SCALA_DEFAULT_LOG_CATEGORY "wallet.mms"
 
 namespace mms
 {
@@ -125,7 +125,7 @@ void message_store::set_signer(const multisig_wallet_state &state,
                                uint32_t index,
                                const boost::optional<std::string> &label,
                                const boost::optional<std::string> &transport_address,
-                               const boost::optional<cryptonote::account_public_address> monero_address)
+                               const boost::optional<cryptonote::account_public_address> scala_address)
 {
   THROW_WALLET_EXCEPTION_IF(index >= m_num_authorized_signers, tools::error::wallet_internal_error, "Invalid signer index " + std::to_string(index));
   authorized_signer &m = m_signers[index];
@@ -137,10 +137,10 @@ void message_store::set_signer(const multisig_wallet_state &state,
   {
     m.transport_address = get_sanitized_text(transport_address.get(), 200);
   }
-  if (monero_address)
+  if (scala_address)
   {
-    m.monero_address_known = true;
-    m.monero_address = monero_address.get();
+    m.scala_address_known = true;
+    m.scala_address = scala_address.get();
   }
   // Save to minimize the chance to loose that info
   save(state);
@@ -157,7 +157,7 @@ bool message_store::signer_config_complete() const
   for (uint32_t i = 0; i < m_num_authorized_signers; ++i)
   {
     const authorized_signer &m = m_signers[i];
-    if (m.label.empty() || m.transport_address.empty() || !m.monero_address_known)
+    if (m.label.empty() || m.transport_address.empty() || !m.scala_address_known)
     {
       return false;
     }
@@ -234,7 +234,7 @@ void message_store::process_signer_config(const multisig_wallet_state &state, co
     const authorized_signer &m = signers[i];
     uint32_t index;
     uint32_t take_index;
-    bool found = get_signer_index_by_monero_address(m.monero_address, index);
+    bool found = get_signer_index_by_scala_address(m.scala_address, index);
     if (found)
     {
       // Redefine existing (probably "me", under usual circumstances)
@@ -255,10 +255,10 @@ void message_store::process_signer_config(const multisig_wallet_state &state, co
     if (!modify.me)
     {
       modify.transport_address = get_sanitized_text(m.transport_address, 200);
-      modify.monero_address_known = m.monero_address_known;
-      if (m.monero_address_known)
+      modify.scala_address_known = m.scala_address_known;
+      if (m.scala_address_known)
       {
-        modify.monero_address = m.monero_address;
+        modify.scala_address = m.scala_address;
       }
     }
   }
@@ -362,7 +362,7 @@ size_t message_store::add_auto_config_data_message(const multisig_wallet_state &
   auto_config_data data;
   data.label = me.label;
   data.transport_address = me.transport_address;
-  data.monero_address = me.monero_address;
+  data.scala_address = me.scala_address;
 
   std::stringstream oss;
   binary_archive<true> ar(oss);
@@ -396,8 +396,8 @@ void message_store::process_auto_config_data_message(uint32_t id)
   authorized_signer &signer = m_signers[m.signer_index];
   // "signer.label" does NOT change, see comment above
   signer.transport_address = data.transport_address;
-  signer.monero_address_known = true;
-  signer.monero_address = data.monero_address;
+  signer.scala_address_known = true;
+  signer.scala_address = data.scala_address;
   signer.auto_config_running = false;
 }
 
@@ -426,10 +426,10 @@ std::string message_store::get_config_checksum() const
   {
     const authorized_signer &m = m_signers[i];
     add_hash(sum, crypto::cn_fast_hash(m.transport_address.data(), m.transport_address.size()));
-    if (m.monero_address_known)
+    if (m.scala_address_known)
     {
-      add_hash(sum, crypto::cn_fast_hash(&m.monero_address.m_spend_public_key, sizeof(m.monero_address.m_spend_public_key)));
-      add_hash(sum, crypto::cn_fast_hash(&m.monero_address.m_view_public_key, sizeof(m.monero_address.m_view_public_key)));
+      add_hash(sum, crypto::cn_fast_hash(&m.scala_address.m_spend_public_key, sizeof(m.scala_address.m_spend_public_key)));
+      add_hash(sum, crypto::cn_fast_hash(&m.scala_address.m_view_public_key, sizeof(m.scala_address.m_view_public_key)));
     }
   }
   std::string checksum_bytes;
@@ -479,18 +479,18 @@ void message_store::setup_signer_for_auto_config(uint32_t index, const std::stri
   m.auto_config_transport_address = m_transporter.derive_transport_address(m.auto_config_token);
 }
 
-bool message_store::get_signer_index_by_monero_address(const cryptonote::account_public_address &monero_address, uint32_t &index) const
+bool message_store::get_signer_index_by_scala_address(const cryptonote::account_public_address &scala_address, uint32_t &index) const
 {
   for (uint32_t i = 0; i < m_num_authorized_signers; ++i)
   {
     const authorized_signer &m = m_signers[i];
-    if (m.monero_address == monero_address)
+    if (m.scala_address == scala_address)
     {
       index = m.index;
       return true;
     }
   }
-  MWARNING("No authorized signer with Monero address " << account_address_to_string(monero_address));
+  MWARNING("No authorized signer with Monero address " << account_address_to_string(scala_address));
   return false;
 }
 
@@ -1296,7 +1296,7 @@ void message_store::send_message(const multisig_wallet_state &state, uint32_t id
   dm.timestamp = (uint64_t)time(NULL);
   dm.subject = "MMS V0 " + tools::get_human_readable_timestamp(dm.timestamp);
   dm.source_transport_address = me.transport_address;
-  dm.source_monero_address = me.monero_address;
+  dm.source_scala_address = me.scala_address;
   if (m.type == message_type::auto_config_data)
   {
     // Encrypt with the public key derived from the auto-config token, and send to the
@@ -1304,14 +1304,14 @@ void message_store::send_message(const multisig_wallet_state &state, uint32_t id
     public_key = me.auto_config_public_key;
     dm.destination_transport_address = me.auto_config_transport_address;
     // The destination Monero address is not yet known
-    memset(&dm.destination_monero_address, 0, sizeof(cryptonote::account_public_address));
+    memset(&dm.destination_scala_address, 0, sizeof(cryptonote::account_public_address));
   }
   else
   {
     // Encrypt with the receiver's view public key
-    public_key = receiver.monero_address.m_view_public_key;
+    public_key = receiver.scala_address.m_view_public_key;
     const authorized_signer &receiver = m_signers[m.signer_index];
-    dm.destination_monero_address = receiver.monero_address;
+    dm.destination_scala_address = receiver.scala_address;
     dm.destination_transport_address = receiver.transport_address;
   }
   encrypt(public_key, m.content, dm.content, dm.encryption_public_key, dm.iv);
@@ -1319,7 +1319,7 @@ void message_store::send_message(const multisig_wallet_state &state, uint32_t id
   dm.hash = crypto::cn_fast_hash(dm.content.data(), dm.content.size());
   dm.round = m.round;
 
-  crypto::generate_signature(dm.hash, me.monero_address.m_view_public_key, state.view_secret_key, dm.signature);
+  crypto::generate_signature(dm.hash, me.scala_address.m_view_public_key, state.view_secret_key, dm.signature);
 
   m_transporter.send_message(dm);
 
@@ -1393,20 +1393,20 @@ bool message_store::check_for_messages(const multisig_wallet_state &state, std::
       else
       {
         // Only accept from senders that are known as signer here, otherwise just ignore
-        take = get_signer_index_by_monero_address(rm.source_monero_address, sender_index);
+        take = get_signer_index_by_scala_address(rm.source_scala_address, sender_index);
       }
       if (take && (type != message_type::auto_config_data))
       {
         // If the destination address is known, check it as well; this additional filter
         // allows using the same transport address for multiple signers
-        take = rm.destination_monero_address == me.monero_address;
+        take = rm.destination_scala_address == me.scala_address;
       }
       if (take)
       {
         crypto::hash actual_hash = crypto::cn_fast_hash(rm.content.data(), rm.content.size());
         THROW_WALLET_EXCEPTION_IF(actual_hash != rm.hash, tools::error::wallet_internal_error, "Message hash mismatch");
 
-        bool signature_valid = crypto::check_signature(actual_hash, rm.source_monero_address.m_view_public_key, rm.signature);
+        bool signature_valid = crypto::check_signature(actual_hash, rm.source_scala_address.m_view_public_key, rm.signature);
         THROW_WALLET_EXCEPTION_IF(!signature_valid, tools::error::wallet_internal_error, "Message signature not valid");
 
         std::string plaintext;

@@ -27,8 +27,8 @@
 // THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 //
 
-#ifndef MONERO_TREZOR_HPP
-#define MONERO_TREZOR_HPP
+#ifndef SCALA_TREZOR_HPP
+#define SCALA_TREZOR_HPP
 
 #include "trezor/trezor_defs.hpp"
 
@@ -37,8 +37,8 @@
 #include "trezor/messages/messages.pb.h"
 #include "trezor/messages/messages-common.pb.h"
 #include "trezor/messages/messages-management.pb.h"
-#include "trezor/messages/messages-monero.pb.h"
+#include "trezor/messages/messages-scala.pb.h"
 #include "trezor/protocol.hpp"
 #endif
 
-#endif //MONERO_TREZOR_HPP
+#endif //SCALA_TREZOR_HPP

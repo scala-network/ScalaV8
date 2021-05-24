@@ -49,8 +49,8 @@
 #include "misc_log_ex.h"
 #include "serialization/json_object.h"
 
-#undef MONERO_DEFAULT_LOG_CATEGORY
-#define MONERO_DEFAULT_LOG_CATEGORY "net.zmq"
+#undef SCALA_DEFAULT_LOG_CATEGORY
+#define SCALA_DEFAULT_LOG_CATEGORY "net.zmq"
 
 namespace
 {
@@ -291,7 +291,7 @@ namespace
   {
     zmq_msg_t msg;
     zmq_msg_init(std::addressof(msg));
-    MONERO_CHECK(net::zmq::retry_op(zmq_msg_recv, std::addressof(msg), relay, ZMQ_DONTWAIT));
+    SCALA_CHECK(net::zmq::retry_op(zmq_msg_recv, std::addressof(msg), relay, ZMQ_DONTWAIT));
 
     const boost::string_ref payload{
       reinterpret_cast<const char*>(zmq_msg_data(std::addressof(msg))),
@@ -332,9 +332,9 @@ zmq_pub::zmq_pub(void* context)
 
   relay_.reset(zmq_socket(context, ZMQ_PAIR));
   if (!relay_)
-    MONERO_ZMQ_THROW("Failed to create relay socket");
+    SCALA_ZMQ_THROW("Failed to create relay socket");
   if (zmq_connect(relay_.get(), relay_endpoint()) != 0)
-    MONERO_ZMQ_THROW("Failed to connect relay socket");
+    SCALA_ZMQ_THROW("Failed to connect relay socket");
 }
 
 zmq_pub::~zmq_pub()

@@ -12,7 +12,7 @@
   - [ ] Monero-announce mailer notice
   - [ ] Twitter announcement
   - [ ] Reddit announcement
-  - [ ] Getmonero.org announcement
+  - [ ] Getscala.org announcement
 - [ ] Notify wallets
   - [ ] MyMonero
   - [ ] Coinomi
@@ -25,20 +25,20 @@
   - [ ] Monerujo
   - [ ] Edge Wallet
   - [ ] Exodus
-  - [ ] XMRWallet
+  - [ ] XLAWallet
 - [ ] Notify exchanges
-  - [ ] https://web.getmonero.org/community/merchants/#exchanges
+  - [ ] https://web.getscala.org/community/merchants/#exchanges
 - [ ] Notify 3rd party payment processors
-  - [ ] https://web.getmonero.org/community/merchants/#payment-gateways
+  - [ ] https://web.getscala.org/community/merchants/#payment-gateways
 - [ ] Notify mining pools
-  - [ ] https://miningpoolstats.stream/monero
+  - [ ] https://miningpoolstats.stream/scala
 - [ ] Release tagged
   - [ ] Update src/version.cpp.in with new version AND new name (if necessary)
   - [ ] Update Gitian YML files in contrib/gitian/ to the new version number
   - [ ] Update README.md with new fork table entry (or at least update the Recommended Monero version)
   - [ ] Update contrib/gitian/README.md so that the instructions reflect the current version
   - [ ] Update src/checkpoints/checkpoints.cpp with a recent hardcoded checkpoint
-  - [ ] Update src/blocks/checkpoints.dat with ./monero-blockchain-export --output-file checkpoints.dat --block-stop <recent block height> --blocksdat
+  - [ ] Update src/blocks/checkpoints.dat with ./scala-blockchain-export --output-file checkpoints.dat --block-stop <recent block height> --blocksdat
   - [ ] Update expected_block_hashes_hash in src/cryptonote_core/blockchain.cpp with checkpoints.dat sha256 hash
 - [ ] Testnet forked
 - [ ] Testnet testing/verification
@@ -48,14 +48,14 @@
   - [ ] RPC testing/update RPC documentation
 - [ ] CLI reproducible builds validated
 - [ ] CLI released
-  - [ ] https://web.getmonero.org/downloads/ updated
+  - [ ] https://web.getscala.org/downloads/ updated
   - [ ] Update hashes.txt on website
   - [ ] Update downloads.yml on website
   - [ ] Update auto-update DNS records
   - [ ] Update redirects on downloads box
   - [ ] Update seed nodes
 - [ ] GUI released
-  - [ ] https://web.getmonero.org/downloads/ updated
+  - [ ] https://web.getscala.org/downloads/ updated
   - [ ] Update hashes.txt on website
   - [ ] Update hashes.txt.sig on website
   - [ ] Update downloads.yml on website
@@ -65,4 +65,4 @@
   - [ ] Monero-announce mailer notice
   - [ ] Twitter announcement
   - [ ] Reddit announcement
-  - [ ] Getmonero.org announcement
+  - [ ] Getscala.org announcement

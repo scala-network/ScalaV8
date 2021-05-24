@@ -73,7 +73,7 @@ static inline int use_v4_jit(void)
   if (use_v4_jit_flag != -1)
     return use_v4_jit_flag;
 
-  const char *env = getenv("MONERO_USE_CNV4_JIT");
+  const char *env = getenv("SCALA_USE_CNV4_JIT");
   if (!env) {
     use_v4_jit_flag = 1;
   }
@@ -505,7 +505,7 @@ STATIC INLINE int force_software_aes(void)
   if (use != -1)
     return use;
 
-  const char *env = getenv("MONERO_USE_SOFTWARE_AES");
+  const char *env = getenv("SCALA_USE_SOFTWARE_AES");
   if (!env) {
     use = 0;
   }
@@ -862,7 +862,7 @@ void cn_slow_hash_free_state(void)
  * AES support on x86 CPUs.
  *
  * A diagram of the inner loop of this function can be found at
- * https://www.cs.cmu.edu/~dga/crypto/xmr/cryptonight.png
+ * https://www.cs.cmu.edu/~dga/crypto/xla/cryptonight.png
  *
  * @param data the data to hash
  * @param length the length in bytes of the data

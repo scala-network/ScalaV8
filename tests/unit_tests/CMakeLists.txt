@@ -102,7 +102,7 @@ set(unit_tests_sources
 set(unit_tests_headers
   unit_tests_utils.h)
 
-monero_add_minimal_executable(unit_tests
+scala_add_minimal_executable(unit_tests
   ${unit_tests_sources}
   ${unit_tests_headers})
 target_link_libraries(unit_tests
@@ -145,6 +145,6 @@ add_test(
   NAME    unit_tests
   COMMAND unit_tests --data-dir "${TEST_DATA_DIR}")
 
-monero_add_minimal_executable(test_notifier test_notifier.cpp)
+scala_add_minimal_executable(test_notifier test_notifier.cpp)
 target_link_libraries(test_notifier ${EXTRA_LIBRARIES})
 set_property(TARGET test_notifier PROPERTY FOLDER "tests")

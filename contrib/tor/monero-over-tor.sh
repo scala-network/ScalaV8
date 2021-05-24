@@ -2,8 +2,8 @@
 
 DIR=$(realpath $(dirname $0))
 
-echo "Checking monerod..."
-monerod=""
+echo "Checking scalad..."
+scalad=""
 for dir in \
   . \
   "$DIR" \
@@ -15,20 +15,20 @@ for dir in \
   "$DIR/build/Windows/master/release/bin" \
   "$DIR/../../build/Windows/master/release/bin"
 do
-  if test -x "$dir/monerod"
+  if test -x "$dir/scalad"
   then
-    monerod="$dir/monerod"
+    scalad="$dir/scalad"
     break
   fi
 done
-if test -z "$monerod"
+if test -z "$scalad"
 then
-  echo "monerod not found"
+  echo "scalad not found"
   exit 1
 fi
-echo "Found: $monerod"
+echo "Found: $scalad"
 
-TORDIR="$DIR/monero-over-tor"
+TORDIR="$DIR/scala-over-tor"
 TORRC="$TORDIR/torrc"
 HOSTNAMEFILE="$TORDIR/hostname"
 echo "Creating configuration..."
@@ -64,18 +64,18 @@ then
   exit 1
 fi
 
-echo "Starting monerod..."
+echo "Starting scalad..."
 HOSTNAME=$(cat "$HOSTNAMEFILE")
-"$monerod" \
+"$scalad" \
   --anonymous-inbound "$HOSTNAME":18083,127.0.0.1:18083,25 --tx-proxy tor,127.0.0.1:9050,10 \
   --add-priority-node zbjkbsxc5munw3qusl7j2hpcmikhqocdf4pqhnhtpzw5nt5jrmofptid.onion:18083 \
-  --add-priority-node 2xmrnode5itf65lz.onion:18083 \
+  --add-priority-node 2xlanode5itf65lz.onion:18083 \
   --detach
 ready=0
 for i in `seq 10`
 do
   sleep 1
-  status=$("$monerod" status)
+  status=$("$scalad" status)
   echo "$status" | grep -q "Height:"
   if test $? = 0
   then
@@ -85,8 +85,8 @@ do
 done
 if test "$ready" = 0
 then
-  echo "Error starting monerod"
-  tail -n 400 "$HOME/.bitmonero/bitmonero.log" | grep -Ev stacktrace\|"Error: Couldn't connect to daemon:"\|"src/daemon/main.cpp:.*Monero\ \'" | tail -n 20
+  echo "Error starting scalad"
+  tail -n 400 "$HOME/.bitscala/bitscala.log" | grep -Ev stacktrace\|"Error: Couldn't connect to daemon:"\|"src/daemon/main.cpp:.*Monero\ \'" | tail -n 20
   exit 1
 fi
 

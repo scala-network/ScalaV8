@@ -38,8 +38,8 @@
 #include <boost/uuid/uuid.hpp>
 #include "net/net_utils_base.h"
 
-#undef MONERO_DEFAULT_LOG_CATEGORY
-#define MONERO_DEFAULT_LOG_CATEGORY "cn.block_queue"
+#undef SCALA_DEFAULT_LOG_CATEGORY
+#define SCALA_DEFAULT_LOG_CATEGORY "cn.block_queue"
 
 namespace cryptonote
 {

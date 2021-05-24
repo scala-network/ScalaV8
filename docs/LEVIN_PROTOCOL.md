@@ -12,7 +12,7 @@ One of the goals of this document is to clearly indicate what is being sent
 These issues will be addressed as they are found. See `ANONMITY_NETWORKS.md` in
 the `docs` folder for any outstanding issues.
 
-> This document does not currently list all data being sent by the monero
+> This document does not currently list all data being sent by the scala
 > protocol, that portion is a work-in-progress. Please take the time to do it
 > if interested in learning about Monero p2p traffic!
 

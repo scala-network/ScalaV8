@@ -46,7 +46,7 @@ endif()
 cmake_minimum_required(VERSION 3.5)
 message(STATUS "CMake version ${CMAKE_VERSION}")
 
-project(monero)
+project(scala)
 
 option (USE_CCACHE "Use ccache if a usable instance is found" ON)
 if (USE_CCACHE)
@@ -63,15 +63,15 @@ if (USE_COMPILATION_TIME_PROFILER)
 endif()
 
 if (${CMAKE_VERSION} VERSION_GREATER "3.0.0" AND CMAKE_MAKE_PROGRAM MATCHES "ninja")
-  set(MONERO_PARALLEL_COMPILE_JOBS "" CACHE STRING "The maximum number of concurrent compilation jobs.")
-  if (MONERO_PARALLEL_COMPILE_JOBS)
-    set_property(GLOBAL APPEND PROPERTY JOB_POOLS compile_job_pool=${MONERO_PARALLEL_COMPILE_JOBS})
+  set(SCALA_PARALLEL_COMPILE_JOBS "" CACHE STRING "The maximum number of concurrent compilation jobs.")
+  if (SCALA_PARALLEL_COMPILE_JOBS)
+    set_property(GLOBAL APPEND PROPERTY JOB_POOLS compile_job_pool=${SCALA_PARALLEL_COMPILE_JOBS})
     set(CMAKE_JOB_POOL_COMPILE compile_job_pool)
   endif ()
 
-  set(MONERO_PARALLEL_LINK_JOBS "" CACHE STRING "The maximum number of concurrent link jobs.")
-  if (MONERO_PARALLEL_LINK_JOBS)
-    set_property(GLOBAL APPEND PROPERTY JOB_POOLS link_job_pool=${MONERO_PARALLEL_LINK_JOBS})
+  set(SCALA_PARALLEL_LINK_JOBS "" CACHE STRING "The maximum number of concurrent link jobs.")
+  if (SCALA_PARALLEL_LINK_JOBS)
+    set_property(GLOBAL APPEND PROPERTY JOB_POOLS link_job_pool=${SCALA_PARALLEL_LINK_JOBS})
     set(CMAKE_JOB_POOL_LINK link_job_pool)
   endif ()
 endif ()
@@ -85,9 +85,9 @@ if (USE_CLANG_TIDY_C OR USE_CLANG_TIDY_CXX)
 	include(SetClangTidy)
 endif()
 if (USE_CLANG_TIDY_C)
-	monero_clang_tidy("C")
+	scala_clang_tidy("C")
 elseif (USE_CLANG_TIDY_CXX)
-	monero_clang_tidy("CXX")
+	scala_clang_tidy("CXX")
 endif()
 
 enable_language(C ASM)
@@ -147,21 +147,21 @@ function (add_definition_if_library_exists library function header var)
 endfunction()
 
 option(RELINK_TARGETS "Relink targets, when just a dependant .so changed, but not its header?" OFF)
-function (monero_set_target_no_relink target)
+function (scala_set_target_no_relink target)
   if (RELINK_TARGETS MATCHES OFF)
     # Will not relink the target, when just its dependant .so has changed, but not it's interface
     set_target_properties("${target}" PROPERTIES LINK_DEPENDS_NO_SHARED true)
   endif()
 endfunction()
 
-function (monero_add_minimal_executable name)
+function (scala_add_minimal_executable name)
   source_group("${name}"
     FILES
       ${ARGN})
 
   add_executable("${name}"
     ${ARGN})
-    monero_set_target_no_relink( ${name} )
+    scala_set_target_no_relink( ${name} )
 endfunction()
 
 # Finds all headers in a directory and its subdirs, to be able to search for them and autosave in IDEs.
@@ -169,7 +169,7 @@ endfunction()
 # Parameters:
 # - headers_found:    Output variable, which will hold the found headers
 # - module_root_dir:  The search path for the headers. Typically it will be the module's root dir.
-macro (monero_find_all_headers headers_found module_root_dir)
+macro (scala_find_all_headers headers_found module_root_dir)
   file(GLOB ${headers_found}
            "${module_root_dir}/*.h*"    # h* will include hpps as well.
            "${module_root_dir}/**/*.h*" # Any number of subdirs will be included.
@@ -522,14 +522,14 @@ add_definition_if_function_found(strptime HAVE_STRPTIME)
 
 add_definitions(-DAUTO_INITIALIZE_EASYLOGGINGPP)
 
-set(MONERO_GENERATED_HEADERS_DIR "${CMAKE_CURRENT_BINARY_DIR}/generated_include")
-include_directories(${MONERO_GENERATED_HEADERS_DIR})
+set(SCALA_GENERATED_HEADERS_DIR "${CMAKE_CURRENT_BINARY_DIR}/generated_include")
+include_directories(${SCALA_GENERATED_HEADERS_DIR})
 
 option(COVERAGE "Enable profiling for test coverage report" OFF)
 if(COVERAGE)
     message(STATUS "Building with profiling for test coverage report")
 endif()
-macro (monero_enable_coverage)
+macro (scala_enable_coverage)
   if(COVERAGE)
     foreach(COV_FLAG -fprofile-arcs -ftest-coverage --coverage)
       set(CMAKE_C_FLAGS   "${CMAKE_C_FLAGS}   ${COV_FLAG}")
@@ -702,7 +702,7 @@ else()
     set(STATIC_ASSERT_CPP_FLAG "-Dstatic_assert=_Static_assert")
   endif()
 
-  monero_enable_coverage()
+  scala_enable_coverage()
   # With GCC 6.1.1 the compiled binary malfunctions due to aliasing. Until that
   # is fixed in the code (Issue #847), force compiler to be conservative.
   set(CMAKE_C_FLAGS "${CMAKE_C_FLAGS} -fno-strict-aliasing")
@@ -890,7 +890,7 @@ else()
     set(DEBUG_FLAGS "${DEBUG_FLAGS} -O0 ")
   endif()
 
-  # At least some CLANGs default to not enough for monero
+  # At least some CLANGs default to not enough for scala
   set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -ftemplate-depth=900")
 
   if(NOT DEFINED USE_LTO_DEFAULT)

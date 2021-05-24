@@ -31,7 +31,7 @@ cmake_minimum_required(VERSION 3.5)
 project(easylogging CXX)
 
 SET(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -std=c++11")
-monero_enable_coverage()
+scala_enable_coverage()
 
 find_package(Threads)
 find_package(Backtrace)

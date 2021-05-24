@@ -140,7 +140,7 @@ class AddressBookTest():
         assert not 'entries' in res or len(res.entries) == 0
 
         # openalias
-        res = wallet.add_address_book('donate@getmonero.org', description = 'dev fund')
+        res = wallet.add_address_book('donate@getscala.org', description = 'dev fund')
         assert res.index == 0
         res = wallet.get_address_book()
         assert len(res.entries) == 1

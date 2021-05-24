@@ -44,8 +44,8 @@
 #include "common/util.h"
 #include "common/threadpool.h"
 
-#undef MONERO_DEFAULT_LOG_CATEGORY
-#define MONERO_DEFAULT_LOG_CATEGORY "wallet.wallet2.rpc_payments"
+#undef SCALA_DEFAULT_LOG_CATEGORY
+#define SCALA_DEFAULT_LOG_CATEGORY "wallet.wallet2.rpc_payments"
 
 #define RPC_PAYMENT_POLL_PERIOD 10 /* seconds*/
 

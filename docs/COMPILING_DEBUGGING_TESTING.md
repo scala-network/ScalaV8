@@ -35,7 +35,7 @@ For instance, in order to generate Makefiles and project files for the Code::Blo
 
 `cmake -G "CodeBlocks - Unix Makefiles" (...)`
 
-The additional artifact of the above call is the `monero.cbp` Code::Blocks project file in the build directory.
+The additional artifact of the above call is the `scala.cbp` Code::Blocks project file in the build directory.
 
 ### Debugging in Code::Blocks (CB)
 
@@ -43,7 +43,7 @@ First prepare the build directory for debugging using the following example comm
 
 `cmake -S "$DIR_SRC" -G "CodeBlocks - Unix Makefiles" -DCMAKE_BUILD_TYPE=Debug -DBUILD_TESTS=ON && make -j 2`
 
-After a successful build, open the `monero.cbp` with CB. From the CB's menu bar select the target, that you want debug. Assuming these are unit tests:
+After a successful build, open the `scala.cbp` with CB. From the CB's menu bar select the target, that you want debug. Assuming these are unit tests:
 
 `Build -> Select target -> Select target -> unit_tests`
 
@@ -73,14 +73,14 @@ If everything looks fine, then after setting some breakpoints of your choice, th
 
 ## To be done (and merged):
 ### Multihost parallel compilation
-https://github.com/monero-project/monero/pull/7160
+https://github.com/scala-project/scala/pull/7160
 
 ### Faster core_tests with caching
-https://github.com/monero-project/monero/pull/5821
+https://github.com/scala-project/scala/pull/5821
 
 ### Precompiled headers
-https://github.com/monero-project/monero/pull/7216
+https://github.com/scala-project/scala/pull/7216
 
 ### Unity builds
-https://github.com/monero-project/monero/pull/7217
+https://github.com/scala-project/scala/pull/7217
 
