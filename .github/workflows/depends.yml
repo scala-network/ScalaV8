@@ -12,21 +12,6 @@ jobs:
       fail-fast: false
       matrix:
         toolchain:
-          - name: "RISCV 64bit"
-            host: "riscv64-linux-gnu"
-            packages: "python3 gperf g++-riscv64-linux-gnu"
-          - name: "ARM v7"
-            host: "arm-linux-gnueabihf"
-            packages: "python3 gperf g++-arm-linux-gnueabihf"
-          - name: "ARM v8"
-            host: "aarch64-linux-gnu"
-            packages: "python3 gperf g++-aarch64-linux-gnu"
-          - name: "i686 Win"
-            host: "i686-w64-mingw32"
-            packages: "python3 g++-mingw-w64-i686 qttools5-dev-tools"
-          - name: "i686 Linux"
-            host: "i686-pc-linux-gnu"
-            packages: "gperf cmake g++-multilib python3-zmq"
           - name: "Win64"
             host: "x86_64-w64-mingw32"
             packages: "cmake python3 g++-mingw-w64-x86-64 qttools5-dev-tools"
@@ -37,9 +22,6 @@ jobs:
             host: "x86_64-apple-darwin11"
             packages: "cmake imagemagick libcap-dev librsvg2-bin libz-dev libbz2-dev libtiff-tools python-dev python3-setuptools-git"
             osx_sdk: "10.11"
-          - name: "x86_64 Freebsd"
-            host: "x86_64-unknown-freebsd"
-            packages: "clang-8 gperf cmake python3-zmq libdbus-1-dev libharfbuzz-dev"
     name: ${{ matrix.toolchain.name }}
     steps:
     - uses: actions/checkout@v1
