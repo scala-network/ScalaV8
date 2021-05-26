@@ -49,6 +49,7 @@ ClangBuildAnalyzerSession.txt
 *.lai
 *.la
 *.a
+!libipfs-*
 *.lib
 
 # Executables
