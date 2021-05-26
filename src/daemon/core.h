@@ -1,4 +1,5 @@
 // Copyright (c) 2014-2020, The Monero Project
+// Copyright (c) 2018-2021, The Scala Network Project
 // 
 // All rights reserved.
 // 
@@ -28,13 +29,26 @@
 
 #pragma once
 
+#include <chrono>
+#include <thread>
 #include "blocks/blocks.h"
 #include "cryptonote_core/cryptonote_core.h"
 #include "cryptonote_protocol/cryptonote_protocol_handler.h"
 #include "misc_log_ex.h"
+#include "rapidjson/document.h"
+
+#if defined(WIN32) || defined(_WIN32) || defined(__WIN32__) || defined(__NT__)
+    #include "libipfs/include/libipfs-windows.h"
+#elif __APPLE__
+    #include "libipfs/include/libipfs-macos.h"
+#else
+    #include "libipfs/include/libipfs-linux.h"
+#endif
 
 #undef SCALA_DEFAULT_LOG_CATEGORY
 #define SCALA_DEFAULT_LOG_CATEGORY "daemon"
+
+using namespace rapidjson;
 
 namespace daemonize
 {
@@ -61,15 +75,40 @@ public:
   {
     //initialize core here
     MGINFO("Initializing core...");
-#if defined(PER_BLOCK_CHECKPOINT)
-    const cryptonote::GetCheckpointsCallback& get_checkpoints = blocks::GetCheckpointsData;
-#else
-    const cryptonote::GetCheckpointsCallback& get_checkpoints = nullptr;
-#endif
+
+    //initialize IPFS here
+    MGINFO("Initializing IPFS...");
+
+    const char* IPFSstartMessage = IPFSStartNode((char*)"./");
+    Document startMessage;
+    startMessage.Parse(IPFSstartMessage);
+    std::string parsedMessage = startMessage["Message"].GetString();
+
+    std::chrono::seconds ipfsWaitDuration(5);
+
+    if ((parsedMessage.find("started on port") != std::string::npos)) {
+      MGINFO("Initialized new IPFS daemon...");
+      std::this_thread::sleep_for( ipfsWaitDuration );
+    }
+    else if(parsedMessage.find("busy") != std::string::npos){
+      MGINFO("Reusing existing running IPFS daemon...");
+      std::this_thread::sleep_for( ipfsWaitDuration );
+    }
+    else{
+      MGINFO("Could not initialize IPFS...");
+      m_core.graceful_exit();
+    }
+
+    #if defined(PER_BLOCK_CHECKPOINT)
+        const cryptonote::GetCheckpointsCallback& get_checkpoints = blocks::GetCheckpointsData;
+    #else
+        const cryptonote::GetCheckpointsCallback& get_checkpoints = nullptr;
+    #endif
     if (!m_core.init(m_vm_HACK, nullptr, get_checkpoints))
     {
       throw std::runtime_error("Failed to initialize core");
     }
+
     MGINFO("Core initialized OK");
   }
 
@@ -95,6 +134,16 @@ public:
     try {
       m_core.deinit();
       m_core.set_cryptonote_protocol(nullptr);
+
+      MGINFO("Deinitializing IPFS...");
+      const char* IPFSstopMessage = IPFSStopNode();
+      Document stopMessage;
+      stopMessage.Parse(IPFSstopMessage);
+      std::string parsedMessage = stopMessage["Message"].GetString();
+      if (parsedMessage.find("IPFS node stopped") != std::string::npos) {
+        MGINFO("IPFS daemon stopped...");
+      }
+
     } catch (...) {
       MERROR("Failed to deinitialize core...");
     }

@@ -1,4 +1,5 @@
 # Copyright (c) 2014-2020, The Monero Project
+# Copyright (c) 2018-2021, The Scala Network Project
 #
 # All rights reserved.
 #
@@ -377,7 +378,17 @@ endif()
 # elseif(CMAKE_SYSTEM_NAME MATCHES ".*BSDI.*")
 #   set(BSDI TRUE)
 
-include_directories(external/rapidjson/include external/easylogging++ src contrib/epee/include external external/supercop/include)
+include_directories(external/rapidjson/include external/easylogging++ src contrib/epee/include external external/supercop/include external/include/libipfs/include)
+
+# Find the libipfs library for each platform
+if(UNIX AND NOT APPLE)
+    find_library(LIBIPFS NAMES ipfs-linux PATHS "${CMAKE_CURRENT_SOURCE_DIR}/external/libipfs" REQUIRED)
+elseif(MACOS OR APPLE)
+    find_library(LIBIPFS NAMES ipfs-macos PATHS "${CMAKE_SOURCE_DIR}/external/libipfs" REQUIRED)
+else()
+    # TODO - find library fails on windows
+    set(LIBIPFS "${CMAKE_SOURCE_DIR}/external/libipfs/libipfs-windows.a")
+endif()
 
 if(APPLE)
   include_directories(SYSTEM /usr/include/malloc)
@@ -439,7 +450,7 @@ if(SANITIZE)
 endif()
 
 # Set default blockchain storage location:
-# memory was the default in Cryptonote before Monero implemented LMDB, it still works but is unnecessary.
+# memory was the default in Cryptonote before Scala implemented LMDB, it still works but is unnecessary.
 # set(DATABASE memory)
 set(DATABASE lmdb)
 message(STATUS "Using LMDB as default DB type")

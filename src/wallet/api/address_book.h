@@ -1,4 +1,5 @@
 // Copyright (c) 2014-2020, The Monero Project
+// Copyright (c) 2018-2021, The Scala Network Project
 //
 // All rights reserved.
 //
@@ -31,7 +32,7 @@
 #include "wallet/api/wallet2_api.h"
 #include "wallet/wallet2.h"
 
-namespace Monero {
+namespace Scala {
 
 class WalletImpl;
 
@@ -67,5 +68,5 @@ private:
 
 }
 
-namespace Bitscala = Monero;
+namespace Bitscala = Scala;
 

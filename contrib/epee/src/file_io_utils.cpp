@@ -46,7 +46,7 @@
 // Microsoft Visual C/C++ Runtime Library, and this method does NOT offer any
 // Unicode support.
 
-// Monero code that would want to continue to use the normal file stream classes
+// Scala code that would want to continue to use the normal file stream classes
 // but WITH Unicode support could therefore not solve this problem on its own,
 // but 2 different projects from 2 different maintaining groups would need changes
 // in this particular direction - something probably difficult to achieve and
@@ -176,7 +176,7 @@ namespace file_io_utils
 
 	bool append_string_to_file(const std::string& path_to_file, const std::string& str)
 	{
-                // No special Windows implementation because so far not used in Monero code
+                // No special Windows implementation because so far not used in Scala code
 		try
 		{
 			std::ofstream fstream;

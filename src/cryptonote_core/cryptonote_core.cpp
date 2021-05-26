@@ -1,4 +1,5 @@
 // Copyright (c) 2014-2020, The Monero Project
+// Copyright (c) 2018-2021, The Scala Network Project
 //
 // All rights reserved.
 //
@@ -209,7 +210,7 @@ namespace cryptonote
   static const command_line::arg_descriptor<std::string> arg_block_rate_notify = {
     "block-rate-notify"
   , "Run a program when the block rate undergoes large fluctuations. This might "
-    "be a sign of large amounts of hash rate going on and off the Monero network, "
+    "be a sign of large amounts of hash rate going on and off the Scala network, "
     "and thus be of potential interest in predicting attacks. %t will be replaced "
     "by the number of minutes for the observation window, %b by the number of "
     "blocks observed within that window, and %e by the number of blocks that was "
@@ -236,6 +237,7 @@ namespace cryptonote
               m_checkpoints_path(""),
               m_last_dns_checkpoints_update(0),
               m_last_json_checkpoints_update(0),
+              m_last_diardi_checkpoints_update(0),
               m_disable_dns_checkpoints(false),
               m_update_download(0),
               m_nettype(UNDEFINED),
@@ -286,11 +288,20 @@ namespace cryptonote
       res = m_blockchain_storage.update_checkpoints(m_checkpoints_path, true);
       m_last_dns_checkpoints_update = time(NULL);
       m_last_json_checkpoints_update = time(NULL);
+      m_last_diardi_checkpoints_update = time(NULL);
     }
     else if (time(NULL) - m_last_json_checkpoints_update >= 600)
     {
       res = m_blockchain_storage.update_checkpoints(m_checkpoints_path, false);
       m_last_json_checkpoints_update = time(NULL);
+    }
+    else if (time(NULL) - m_last_diardi_checkpoints_update >= 240) /* Update from diardi every 4 minutes */
+    {
+      bool addDiardi = m_checkpointsO.insert_latest_diardi_checkpoint();
+      if(!addDiardi){
+        MERROR("Adding latest checkpoint from diardi failed");
+      }
+      m_last_diardi_checkpoints_update = time(NULL);
     }
 
     m_checkpoints_updating.clear();
@@ -497,7 +508,7 @@ namespace cryptonote
       if (boost::filesystem::exists(old_files / "blockchain.bin"))
       {
         MWARNING("Found old-style blockchain.bin in " << old_files.string());
-        MWARNING("Monero now uses a new format. You can either remove blockchain.bin to start syncing");
+        MWARNING("Scala now uses a new format. You can either remove blockchain.bin to start syncing");
         MWARNING("the blockchain anew, or use scala-blockchain-export and scala-blockchain-import to");
         MWARNING("convert your existing blockchain.bin to the new format. See README.md for instructions.");
         return false;
@@ -1722,7 +1733,7 @@ namespace cryptonote
     {
       std::string main_message;
       if (m_offline)
-        main_message = "The daemon is running offline and will not attempt to sync to the Monero network.";
+        main_message = "The daemon is running offline and will not attempt to sync to the Scala network.";
       else
         main_message = "The daemon will start synchronizing with the network. This may take a long time to complete.";
       MGINFO_YELLOW(ENDL << "**********************************************************************" << ENDL
@@ -1965,7 +1976,7 @@ namespace cryptonote
       MDEBUG("blocks in the last " << seconds[n] / 60 << " minutes: " << b << " (probability " << p << ")");
       if (p < threshold)
       {
-        MWARNING("There were " << b << (b == max_blocks_checked ? " or more" : "") << " blocks in the last " << seconds[n] / 60 << " minutes, there might be large hash rate changes, or we might be partitioned, cut off from the Monero network or under attack, or your computer's time is off. Or it could be just sheer bad luck.");
+        MWARNING("There were " << b << (b == max_blocks_checked ? " or more" : "") << " blocks in the last " << seconds[n] / 60 << " minutes, there might be large hash rate changes, or we might be partitioned, cut off from the Scala network or under attack, or your computer's time is off. Or it could be just sheer bad luck.");
 
         std::shared_ptr<tools::Notify> block_rate_notify = m_block_rate_notify;
         if (block_rate_notify)

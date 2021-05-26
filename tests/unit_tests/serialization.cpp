@@ -1,4 +1,5 @@
 // Copyright (c) 2014-2020, The Monero Project
+// Copyright (c) 2018-2021, The Scala Network Project
 // 
 // All rights reserved.
 // 
@@ -759,7 +760,7 @@ TEST(Serialization, portability_wallet)
   }
 }
 
-#define OUTPUT_EXPORT_FILE_MAGIC "Monero output export\003"
+#define OUTPUT_EXPORT_FILE_MAGIC "Scala output export\003"
 TEST(Serialization, portability_outputs)
 {
   // read file
@@ -886,7 +887,7 @@ inline void serialize(Archive &a, unsigned_tx_set &x, const boost::serialization
   a & x.txes;
   a & x.transfers;
 }
-#define UNSIGNED_TX_PREFIX "Monero unsigned tx set\003"
+#define UNSIGNED_TX_PREFIX "Scala unsigned tx set\003"
 TEST(Serialization, portability_unsigned_tx)
 {
   const boost::filesystem::path filename = unit_test::data_dir / "unsigned_scala_tx";
@@ -1034,7 +1035,7 @@ TEST(Serialization, portability_unsigned_tx)
   ASSERT_TRUE(td2.m_pk_index == 0);
 }
 
-#define SIGNED_TX_PREFIX "Monero signed tx set\003"
+#define SIGNED_TX_PREFIX "Scala signed tx set\003"
 TEST(Serialization, portability_signed_tx)
 {
   const boost::filesystem::path filename = unit_test::data_dir / "signed_scala_tx";

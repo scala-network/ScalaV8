@@ -1,4 +1,5 @@
 // Copyright (c) 2014-2020, The Monero Project
+// Copyright (c) 2018-2021, The Scala Network Project
 // 
 // All rights reserved.
 // 
@@ -1115,7 +1116,7 @@ std::string get_nix_version_display_string()
   std::string get_human_readable_bytes(uint64_t bytes)
   {
     // Use 1024 for "kilo", 1024*1024 for "mega" and so on instead of the more modern and standard-conforming
-    // 1000, 1000*1000 and so on, to be consistent with other Monero code that also uses base 2 units
+    // 1000, 1000*1000 and so on, to be consistent with other Scala code that also uses base 2 units
     struct byte_map
     {
         const char* const format;
@@ -1316,7 +1317,7 @@ std::string get_nix_version_display_string()
       return num_blocks;
     }
 
-    // The following is a table of average blocks sizes in bytes over the Monero mainnet
+    // The following is a table of average blocks sizes in bytes over the Scala mainnet
     // blockchain, where the block size is averaged over ranges of 10,000 blocks
     // (about 2 weeks worth of blocks each).
     // The first array entry of 442 thus means "The average byte size of the blocks

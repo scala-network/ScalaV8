@@ -1,4 +1,5 @@
 // Copyright (c) 2014-2020, The Monero Project
+// Copyright (c) 2018-2021, The Scala Network Project
 //
 // All rights reserved.
 //
@@ -42,7 +43,7 @@
 
 using namespace std;
 
-namespace Monero {
+namespace Scala {
 
 UnsignedTransaction::~UnsignedTransaction() {}
 
@@ -317,5 +318,5 @@ uint64_t UnsignedTransactionImpl::minMixinCount() const
 
 } // namespace
 
-namespace Bitscala = Monero;
+namespace Bitscala = Scala;
 

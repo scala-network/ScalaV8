@@ -1,4 +1,4 @@
-# Monero Blockchain Utilities
+# Scala Blockchain Utilities
 
 Copyright (c) 2014-2020, The Monero Project
 

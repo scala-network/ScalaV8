@@ -69,7 +69,7 @@ namespace trezor {
 
       unsigned client_version();
       void transaction_versions_check(const ::tools::wallet2::unsigned_tx_set & unsigned_tx, hw::tx_aux_data & aux_data);
-      void transaction_pre_check(std::shared_ptr<messages::scala::MoneroTransactionInitRequest> init_msg);
+      void transaction_pre_check(std::shared_ptr<messages::scala::ScalaTransactionInitRequest> init_msg);
       void transaction_check(const protocol::tx::TData & tdata, const hw::tx_aux_data & aux_data);
       void device_state_initialize_unsafe() override;
       void live_refresh_start_unsafe();
@@ -120,7 +120,7 @@ namespace trezor {
       /**
        * Get address. Throws.
        */
-      std::shared_ptr<messages::scala::MoneroAddress> get_address(
+      std::shared_ptr<messages::scala::ScalaAddress> get_address(
           const boost::optional<cryptonote::subaddress_index> & subaddress = boost::none,
           const boost::optional<crypto::hash8> & payment_id = boost::none,
           bool show_address = false,
@@ -130,7 +130,7 @@ namespace trezor {
       /**
        * Get watch key from device. Throws.
        */
-      std::shared_ptr<messages::scala::MoneroWatchKey> get_view_key(
+      std::shared_ptr<messages::scala::ScalaWatchKey> get_view_key(
           const boost::optional<std::vector<uint32_t>> & path = boost::none,
           const boost::optional<cryptonote::network_type> & network_type = boost::none);
 

@@ -1,4 +1,5 @@
 // Copyright (c) 2014-2020, The Monero Project
+// Copyright (c) 2018-2021, The Scala Network Project
 //
 // All rights reserved.
 //
@@ -34,6 +35,7 @@
 #include "crypto/hash.h"
 #include "cryptonote_config.h"
 #include "cryptonote_basic/difficulty.h"
+#include "diardi/diardi.h"
 
 #define ADD_CHECKPOINT(h, hash)  CHECK_AND_ASSERT(add_checkpoint(h,  hash), false);
 #define ADD_CHECKPOINT2(h, hash, difficulty)  CHECK_AND_ASSERT(add_checkpoint(h,  hash, difficulty), false);
@@ -154,6 +156,13 @@ namespace cryptonote
      * @return false if any conflict is found, otherwise true
      */
     bool check_for_conflicts(const checkpoints& other) const;
+
+    /**
+     * @brief Inserts the latest checkpoint from Diardi
+     *
+     * @return true unless adding a checkpoint fails
+     */
+    bool insert_latest_diardi_checkpoint();
 
     /**
      * @brief loads the default main chain checkpoints

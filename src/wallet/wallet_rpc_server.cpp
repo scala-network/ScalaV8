@@ -1,4 +1,5 @@
 // Copyright (c) 2014-2020, The Monero Project
+// Copyright (c) 2018-2021, The Scala Network Project
 // 
 // All rights reserved.
 // 
@@ -780,7 +781,7 @@ namespace tools
           }
           if (addresses.empty())
           {
-            er.message = std::string("No Monero address found at ") + url;
+            er.message = std::string("No Scala address found at ") + url;
             return {};
           }
           return addresses[0];
@@ -2043,7 +2044,7 @@ namespace tools
         }
         if (addresses.empty())
         {
-          er.message = std::string("No Monero address found at ") + url;
+          er.message = std::string("No Scala address found at ") + url;
           return {};
         }
         return addresses[0];
@@ -2861,7 +2862,7 @@ namespace tools
         }
         if (addresses.empty())
         {
-          er.message = std::string("No Monero address found at ") + url;
+          er.message = std::string("No Scala address found at ") + url;
           return {};
         }
         return addresses[0];
@@ -2915,7 +2916,7 @@ namespace tools
           }
           if (addresses.empty())
           {
-            er.message = std::string("No Monero address found at ") + url;
+            er.message = std::string("No Scala address found at ") + url;
             return {};
           }
           return addresses[0];
@@ -4234,7 +4235,7 @@ namespace tools
             }
             if (addresses.empty())
             {
-              er.message = std::string("No Monero address found at ") + url;
+              er.message = std::string("No Scala address found at ") + url;
               return {};
             }
             address = addresses[0];

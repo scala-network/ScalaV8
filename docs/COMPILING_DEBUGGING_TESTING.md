@@ -1,19 +1,19 @@
 # Compiling, debugging and testing efficiently
 
 This document describes ways of compiling, debugging and testing efficiently for various use cases.
-The intented audience are developers, who want to leverage newly added tricks to Monero via `CMake`. The document will lower the entry point for these developers.
+The intented audience are developers, who want to leverage newly added tricks to Scala via `CMake`. The document will lower the entry point for these developers.
 Before reading this document, please consult section "Build instructions" in the main README.md. 
 Some information from README.md will be repeated here, but the aim is to go beyond it.
 
 ## Basic compilation
 
-Monero can be compiled via the main `Makefile`, using one of several targets listed there.
+Scala can be compiled via the main `Makefile`, using one of several targets listed there.
 The targets are actually presets for `CMake` calls with various options, plus `make` commands for building or in some cases `make test` for testing.
-It is possible to extract these `CMake` calls and modify them for your specific needs. For example, a minimal external cmake command to compile Monero, executed from within a newly created build directory could look like:
+It is possible to extract these `CMake` calls and modify them for your specific needs. For example, a minimal external cmake command to compile Scala, executed from within a newly created build directory could look like:
 
 `cmake -S "$DIR_SRC" -DCMAKE_BUILD_TYPE=Release && make`
 
-where the variable `DIR_SRC` is expected to store the path to the Monero source code.
+where the variable `DIR_SRC` is expected to store the path to the Scala source code.
 
 ## Use cases
 

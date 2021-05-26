@@ -1,4 +1,5 @@
 // Copyright (c) 2014-2020, The Monero Project
+// Copyright (c) 2018-2021, The Scala Network Project
 //
 // All rights reserved.
 //
@@ -51,6 +52,7 @@
 #include "crypto/hash.h"
 #include "span.h"
 #include "rpc/fwd.h"
+#include "checkpoints/checkpoints.h"
 
 PUSH_WARNINGS
 DISABLE_VS_WARNINGS(4355)
@@ -1085,6 +1087,8 @@ namespace cryptonote
 
      uint64_t m_target_blockchain_height; //!< blockchain height target
 
+     checkpoints m_checkpointsO;
+
      network_type m_nettype; //!< which network are we on?
 
      std::atomic<bool> m_update_available;
@@ -1092,6 +1096,7 @@ namespace cryptonote
      std::string m_checkpoints_path; //!< path to json checkpoints file
      time_t m_last_dns_checkpoints_update; //!< time when dns checkpoints were last updated
      time_t m_last_json_checkpoints_update; //!< time when json checkpoints were last updated
+     time_t m_last_diardi_checkpoints_update; //!< time when json checkpoints were last updated
 
      std::atomic_flag m_checkpoints_updating; //!< set if checkpoints are currently updating to avoid multiple threads attempting to update at once
      bool m_disable_dns_checkpoints;

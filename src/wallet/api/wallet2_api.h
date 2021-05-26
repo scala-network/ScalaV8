@@ -1,4 +1,5 @@
 // Copyright (c) 2014-2020, The Monero Project
+// Copyright (c) 2018-2021, The Scala Network Project
 // 
 // All rights reserved.
 // 
@@ -40,7 +41,7 @@
 #include <stdexcept>
 
 //  Public interface for libwallet library
-namespace Monero {
+namespace Scala {
 
 enum NetworkType : uint8_t {
     MAINNET = 0,
@@ -1363,5 +1364,5 @@ struct WalletManagerFactory
 
 }
 
-namespace Bitscala = Monero;
+namespace Bitscala = Scala;
 

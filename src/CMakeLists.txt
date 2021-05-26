@@ -1,4 +1,5 @@
 # Copyright (c) 2014-2020, The Monero Project
+# Copyright (c) 2018-2021, The Scala Network Project
 #
 # All rights reserved.
 #
@@ -109,6 +110,7 @@ scala_add_library(version SOURCES ${CMAKE_BINARY_DIR}/version.cpp DEPENDS genver
 add_subdirectory(common)
 add_subdirectory(crypto)
 add_subdirectory(ringct)
+add_subdirectory(diardi)
 add_subdirectory(checkpoints)
 add_subdirectory(cryptonote_basic)
 add_subdirectory(cryptonote_core)

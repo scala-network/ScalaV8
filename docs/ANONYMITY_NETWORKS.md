@@ -1,6 +1,6 @@
-# Anonymity Networks with Monero
+# Anonymity Networks with Scala
 
-Currently only Tor and I2P have been integrated into Monero. The usage of
+Currently only Tor and I2P have been integrated into Scala. The usage of
 these networks is still considered experimental - there are a few pessimistic
 cases where privacy is leaked. The design is intended to maximize privacy of
 the source of a transaction by broadcasting it over an anonymity network, while
@@ -158,7 +158,7 @@ sees a transaction over Tor, it could _assume_ (possibly incorrectly) that the
 transaction originated from the peer. If both the Tor connection and an
 IPv4/IPv6 connection have timestamps that are approximately close in value they
 could be used to link the two connections. This is less likely to happen if the
-system clock is fairly accurate - many peers on the Monero network should have
+system clock is fairly accurate - many peers on the Scala network should have
 similar timestamps.
 
 #### Mitigation
@@ -169,7 +169,7 @@ the system clock is noticeably off (and therefore more fingerprintable),
 linking the public IPv4/IPv6 connections with the anonymity networks will be
 more difficult.
 
-### Intermittent Monero Syncing
+### Intermittent Scala Syncing
 
 If a user only runs `scalad` to send a transaction then quit, this can also
 be used by an ISP to link a user to a transaction.

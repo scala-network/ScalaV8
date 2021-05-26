@@ -1,4 +1,5 @@
 // Copyright (c) 2014-2020, The Monero Project
+// Copyright (c) 2018-2021, The Scala Network Project
 //
 // All rights reserved.
 //
@@ -68,6 +69,8 @@ namespace cryptonote
           KV_SERIALIZE(hashlines)
         END_KV_SERIALIZE_MAP()
   };
+
+  diardi diardiObj;
 
   //---------------------------------------------------------------------------
   checkpoints::checkpoints()
@@ -180,6 +183,27 @@ namespace cryptonote
     return true;
   }
 
+  bool checkpoints::insert_latest_diardi_checkpoint()
+  {
+    std::string respndedCheckpoint;
+    bool getCheckpoint = diardiObj.getLatestCheckpoint(respndedCheckpoint);
+    
+    if(getCheckpoint)
+    {
+      Document jsonCheckpoint;
+      jsonCheckpoint.Parse(respndedCheckpoint.c_str());
+      
+      uint64_t height = jsonCheckpoint["height"].GetUint64();
+      std::string hash = jsonCheckpoint["hash"].GetString();
+      std::string difficulty = jsonCheckpoint["difficulty"].GetString();
+
+      ADD_CHECKPOINT2(height, hash, difficulty);
+      MGINFO("Inserted checkpoint for height " << height << " from diardi");
+      return true;
+    }
+    return false;
+  }
+
   bool checkpoints::init_default_checkpoints(network_type nettype)
   {
     if (nettype == TESTNET)
@@ -189,6 +213,11 @@ namespace cryptonote
     if (nettype == STAGENET)
     {
       return true;
+    }
+
+    bool initLatest = insert_latest_diardi_checkpoint();
+    if(!initLatest){
+      return false;
     }
     return true;
   }
