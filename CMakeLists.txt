@@ -384,6 +384,7 @@ include_directories(external/rapidjson/include external/easylogging++ src contri
 if(UNIX AND NOT APPLE)
     find_library(LIBIPFS NAMES ipfs-linux PATHS "${CMAKE_CURRENT_SOURCE_DIR}/external/libipfs" REQUIRED)
 elseif(MACOS OR APPLE)
+    list(APPEND EXTRA_LIBRARIES "-framework CoreFoundation -framework Security")
     find_library(LIBIPFS NAMES ipfs-macos PATHS "${CMAKE_SOURCE_DIR}/external/libipfs" REQUIRED)
 else()
     # TODO - find library fails on windows
