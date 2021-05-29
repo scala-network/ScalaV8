@@ -70,14 +70,22 @@ extern "C" {
 
 
 // IPFSStartNode starts the IPFS node and initializes ZeroNet
-extern char* IPFSStartNode(char* dataPath);
+
+extern char* IPFSStartNode(char* p0);
+
 extern char* IPFSStopNode();
-extern char* ResolveIPNS(char* peerID);
-extern char* AddDirectory(char* directory);
-extern char* BootstrapAdd(char* peer);
+
+extern char* ResolveIPNS(char* p0);
+
+extern char* AddDirectory(char* p0);
+
+extern char* BootstrapAdd(char* p0);
+
 extern char* GetPeerID();
-extern char* PublishToIPNS(char* contentHash);
-extern char* Cat(char* toView);
+
+extern char* PublishToIPNS(char* p0);
+
+extern char* Cat(char* p0);
 
 #ifdef __cplusplus
 }
