@@ -85,6 +85,34 @@ namespace cryptonote
 
         bool getRequest(std::string& url, std::string& response);
 
+        /**
+         * @brief Find element that occurs more than n/2 times in a vector
+         *
+         * @param checkpoints the vector that contains all the checkpoints
+         *
+         * @return std::string of the most frequent checkpoint
+         *
+         *
+        */
+
+        std::string getMajority(std::vector<std::string> &checkpoints);
+
+
+        /**
+         * @brief Check if a given element occurs more than n/2 times in a vector
+         *
+         * @param checkpoints the vector that contains all the checkpoints
+         * @param checkpoint the std::string to check against
+         *
+         * @return true or false depending on if it does occur n/2 times or not
+         *
+         *
+        */
+
+        bool checkMajority(std::vector<std::string> &checkpoints, std::string& checkpoint);
+
+
+
         static const std::vector<std::string> offlineSeedList;
         static const std::vector<std::string> offlineBansList;
         static const std::string seedsName;

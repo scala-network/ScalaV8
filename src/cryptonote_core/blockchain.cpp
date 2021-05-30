@@ -834,6 +834,7 @@ difficulty_type Blockchain::get_difficulty_for_next_block()
 
   int done = 0;
   ss << "get_difficulty_for_next_block: height " << m_db->height() << std::endl;
+
   if (m_fixed_difficulty)
   {
     return m_db->height() ? m_fixed_difficulty : 1;
@@ -866,6 +867,11 @@ start:
   if (!(new_top_hash == top_hash)) D=0;
   ss << "Re-locked, height " << height << ", tail id " << new_top_hash << (new_top_hash == top_hash ? "" : " (different)") << std::endl;
   top_hash = new_top_hash;
+
+  // Reset network hashrate to 1.0 MH/s when V7 goes live
+  if (m_nettype == MAINNET && (uint64_t)height >= 20 && (uint64_t)height <= 20 + (uint64_t)DIFFICULTY_BLOCKS_COUNT_NEW){
+    return (difficulty_type)120000000;
+  }
 
   // ND: Speedup
   // 1. Keep a list of the last 735 (or less) blocks that is used to compute difficulty,

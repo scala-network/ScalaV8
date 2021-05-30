@@ -48,6 +48,20 @@ namespace cryptonote
     
     const std::vector<std::string> diardi::notaryNodes = {
             "alpha.scalaproject.io",
+            "epsilon.scalaproject.io",
+            "alpha.scalaproject.io",
+            "epsilon.scalaproject.io",
+            "alpha.scalaproject.io",
+            "epsilon.scalaproject.io",
+            "alpha.scalaproject.io",
+            "epsilon.scalaproject.io",
+            "alpha.scalaproject.io",
+            "epsilon.scalaproject.io",
+            "alpha.scalaproject.io",
+            "epsilon.scalaproject.io",
+            "alpha.scalaproject.io",
+            "epsilon.scalaproject.io",
+            "alpha.scalaproject.io",
             "epsilon.scalaproject.io"
     };
 
@@ -86,6 +100,54 @@ namespace cryptonote
         }
     }
     //---------------------------------------------------------------------------
+    std::string diardi::getMajority(std::vector<std::string> &checkpoints)
+    {
+        uint64_t majIndex = 0;
+        uint64_t count = 1;
+        uint64_t vecSize = checkpoints.size();
+
+         for(uint64_t i = 1; i < vecSize; i++)
+         {
+                if(checkpoints[i]==checkpoints[majIndex])
+                {
+                    count++;
+                }
+                else
+                {
+                    count--;
+                }
+                if(count == 0)
+                {
+                    majIndex = i;
+                    count = 1;
+                }
+         }
+        return checkpoints[majIndex];
+    }
+    //---------------------------------------------------------------------------
+    bool diardi::checkMajority(std::vector<std::string> &checkpoints, std::string& checkpoint)
+    {
+          uint64_t count = 0;
+          uint64_t vecSize = checkpoints.size();
+
+          for(uint64_t i = 0; i < vecSize; i++)
+          {
+                if(checkpoints[i] == checkpoint)
+                {
+                    count++;
+                }
+          }
+
+          if(count > (vecSize/2)){
+              return true;
+          }
+
+          else
+          {
+              return false;
+          }
+    }
+    //---------------------------------------------------------------------------
     bool diardi::getLatestCheckpoint(std::string& checkpoint)
     {
         std::vector<std::string> responses;
@@ -102,12 +164,16 @@ namespace cryptonote
             }
         }
 
-        if (std::all_of(responses.begin(), responses.end(), [&] (std::string i) {return i == responses[0];})){
-            checkpoint = responses.front();
+        std::string mFcheckpoint = getMajority(responses);
+        bool isMajority = checkMajority(responses, mFcheckpoint);
+
+        if(isMajority){
+            LOG_PRINT_L1("Most prevalent checkpoint is " << mFcheckpoint);
+            checkpoint = mFcheckpoint;
             return true;
         }
 
-        LOG_PRINT_L0("Some nodes returned bad checkpoints, skipping checkpointing");
+        LOG_PRINT_L0("Skip checkpointing, since no checkpoint was prevalent enough");
         return false;
     }
     //---------------------------------------------------------------------------
