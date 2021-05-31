@@ -382,12 +382,19 @@ include_directories(external/rapidjson/include external/easylogging++ src contri
 
 # Find the libipfs library for each platform
 if(UNIX AND NOT APPLE)
-    find_library(LIBIPFS NAMES ipfs-linux PATHS "${CMAKE_CURRENT_SOURCE_DIR}/external/libipfs" REQUIRED)
+    if(NOT DEPENDS)
+      find_library(LIBIPFS NAMES ipfs-linux PATHS "${CMAKE_SOURCE_DIR}/external/libipfs" REQUIRED)
+    else()
+      set(LIBIPFS "${CMAKE_SOURCE_DIR}/external/libipfs/libipfs-linux.a")
+    endif()
 elseif(MACOS OR APPLE)
     list(APPEND EXTRA_LIBRARIES "-framework CoreFoundation -framework Security")
-    find_library(LIBIPFS NAMES ipfs-macos PATHS "${CMAKE_SOURCE_DIR}/external/libipfs" REQUIRED)
+    if(NOT DEPENDS)
+      find_library(LIBIPFS NAMES ipfs-macos PATHS "${CMAKE_SOURCE_DIR}/external/libipfs" REQUIRED)
+    else()
+      set(LIBIPFS "${CMAKE_SOURCE_DIR}/external/libipfs/libipfs-macos.a")
+    endif()
 else()
-    # TODO - find library fails on windows
     set(LIBIPFS "${CMAKE_SOURCE_DIR}/external/libipfs/libipfs-windows.a")
 endif()
 
