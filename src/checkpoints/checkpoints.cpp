@@ -215,7 +215,6 @@ namespace cryptonote
       return true;
     }
 
-    //ADD_CHECKPOINT2()
     bool initLatest = insert_latest_diardi_checkpoint();
     if(!initLatest){
       MERROR("Adding initial checkpoints from IPFS failed");

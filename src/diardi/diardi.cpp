@@ -48,20 +48,7 @@ namespace cryptonote
     
     const std::vector<std::string> diardi::notaryNodes = {
             "alpha.scalaproject.io",
-            "epsilon.scalaproject.io",
-            "alpha.scalaproject.io",
-            "epsilon.scalaproject.io",
-            "alpha.scalaproject.io",
-            "epsilon.scalaproject.io",
-            "alpha.scalaproject.io",
-            "epsilon.scalaproject.io",
-            "alpha.scalaproject.io",
-            "epsilon.scalaproject.io",
-            "alpha.scalaproject.io",
-            "epsilon.scalaproject.io",
-            "alpha.scalaproject.io",
-            "epsilon.scalaproject.io",
-            "alpha.scalaproject.io",
+            "delta.scalaproject.io",
             "epsilon.scalaproject.io"
     };
 
