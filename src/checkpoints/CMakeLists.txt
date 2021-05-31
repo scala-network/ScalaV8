@@ -29,7 +29,7 @@
 
 if(APPLE)
   if(DEPENDS)
-    list(APPEND EXTRA_LIBRARIES "-framework Foundation -framework ApplicationServices -framework AppKit -framework IOKit")
+    list(APPEND EXTRA_LIBRARIES "-framework Foundation -framework ApplicationServices -framework AppKit -framework IOKit -framework Security")
   else()
     find_library(IOKIT_LIBRARY IOKit)
     mark_as_advanced(IOKIT_LIBRARY)
