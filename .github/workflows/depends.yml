@@ -12,13 +12,13 @@ jobs:
       fail-fast: false
       matrix:
         toolchain:
-          - name: "Win64"
+          - name: "win-x86_64"
             host: "x86_64-w64-mingw32"
             packages: "cmake python3 g++-mingw-w64-x86-64 qttools5-dev-tools"
-          - name: "x86_64 Linux"
+          - name: "linux-x86_64"
             host: "x86_64-unknown-linux-gnu"
             packages: "gperf cmake python3-zmq libdbus-1-dev libharfbuzz-dev"
-          - name: "Cross-Mac"
+          - name: "macOS-x86_64"
             host: "x86_64-apple-darwin11"
             packages: "cmake imagemagick libcap-dev librsvg2-bin libz-dev libbz2-dev libtiff-tools python-dev python3-setuptools-git"
             osx_sdk: "10.11"
