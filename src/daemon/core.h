@@ -84,7 +84,7 @@ public:
     startMessage.Parse(IPFSstartMessage);
     std::string parsedMessage = startMessage["Message"].GetString();
 
-    std::chrono::seconds ipfsWaitDuration(8);
+    std::chrono::seconds ipfsWaitDuration(20);
 
     if ((parsedMessage.find("started on port") != std::string::npos)) {
       MGINFO("Initialized new IPFS daemon...");
