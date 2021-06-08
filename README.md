@@ -220,7 +220,9 @@ A lot more information about the project is available on the [wiki](https://wiki
 ## Licenses
 
 Copyright (c) 2018-2021 The Scala Network.
+
 Copyright (c) 2014-2021 The Monero Project. 
+
 Portions Copyright (c) 2012-2013 The Cryptonote developers.
 
 Also please see the LICENSE file for more information.
