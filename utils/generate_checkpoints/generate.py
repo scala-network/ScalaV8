@@ -6,7 +6,7 @@ import ipfsApi
 
 ipfs_api = ipfsApi.Client("https://ipfs.infura.io", 5001)
 checkpoints_filename = "checkpoints.json"
-scala_node = "http://mine.scalaproject.io:8000/json_rpc"
+scala_node = "http://localhost:11812/json_rpc"
 
 headers = {
     'Content-Type': 'application/json',
@@ -15,7 +15,7 @@ headers = {
 def getInfo():
     data = {"jsonrpc":"2.0","id":"0","method":"get_info"}
     data = json.dumps(data)
-    response = requests.post("http://mine.scalaproject.io:8000/json_rpc", headers=headers, data=data)
+    response = requests.post(scala_node, headers=headers, data=data)
     return (response.json())
 
 def getBlocksByRange(start,end):
