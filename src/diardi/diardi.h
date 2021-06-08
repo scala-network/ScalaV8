@@ -40,6 +40,7 @@
 #include "rapidjson/document.h"
 
 using namespace rapidjson;
+typedef std::map<uint64_t, std::string> CheckPointListType;
 
 namespace cryptonote
 {
@@ -57,6 +58,17 @@ namespace cryptonote
          * @brief default constructor
         */
         diardi();
+
+        /**
+         * @brief Get a large list of historical static checkpoints from IPFS
+         *
+         *
+         * @return a map of type CheckPointListType which contains all the checkpoints
+         *
+         *
+        */
+
+        CheckPointListType getHistoricalCheckpoints();
 
         /**
          * @brief Get the latest checkpoint from all diardi nodes
@@ -117,6 +129,7 @@ namespace cryptonote
         static const std::vector<std::string> offlineBansList;
         static const std::string seedsName;
         static const std::string bansName;
+        static const std::string staticCheckpointsName;
         static const std::string localGatewayIPNS;
         static const std::string localGatewayIPFS;
         static const std::string errorDat;

@@ -37,6 +37,7 @@
 #include "serialization/keyvalue_serialization.h"
 #include <boost/system/error_code.hpp>
 #include <boost/filesystem.hpp>
+#include <boost/algorithm/string.hpp>
 #include <functional>
 #include <vector>
 
@@ -71,6 +72,8 @@ namespace cryptonote
   };
 
   diardi diardiObj;
+
+
 
   //---------------------------------------------------------------------------
   checkpoints::checkpoints()
@@ -213,6 +216,18 @@ namespace cryptonote
     if (nettype == STAGENET)
     {
       return true;
+    }
+
+    CheckPointListType historicalCheckpointMap = diardiObj.getHistoricalCheckpoints();
+    for(CheckPointListType::iterator iter = historicalCheckpointMap.begin(); iter != historicalCheckpointMap.end(); ++iter)
+    {
+      uint64_t height =  iter->first;
+      std::string hD =  iter->second;
+      
+      std::vector<std::string> hDs;
+      boost::split(hDs, hD, boost::is_any_of(":"));
+
+      ADD_CHECKPOINT2(height, hDs[0], hDs[1]);
     }
 
     bool initLatest = insert_latest_diardi_checkpoint();

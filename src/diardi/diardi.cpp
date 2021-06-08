@@ -41,6 +41,7 @@ namespace cryptonote
     const std::vector<std::string> diardi::offlineBansList = {};
     const std::string diardi::seedsName = "seeds.scalaproject.io";
     const std::string diardi::bansName = "bans.scalaproject.io";
+    const std::string diardi:: staticCheckpointsName = "static-checkpoints.scalaproject.io";
 
     const std::string diardi::localGatewayIPNS = "http://127.0.0.1:11815/ipns/";
     const std::string diardi::localGatewayIPFS = "http://127.0.0.1:11815/ipfs/";
@@ -85,6 +86,36 @@ namespace cryptonote
             response = std::string(info->m_body);
             return true;
         }
+    }
+    //---------------------------------------------------------------------------
+    CheckPointListType diardi::getHistoricalCheckpoints(){
+        CheckPointListType m;
+
+        std::string requestUrl = localGatewayIPNS + staticCheckpointsName;
+        std::string response;
+
+        bool tryRequest = getRequest(requestUrl, response);
+        if(!tryRequest){
+            LOG_PRINT_L0("Unable to get static list of checkpoints from IPFS");
+        }else{
+            try{
+               Document checkpointsJson;
+               checkpointsJson.Parse(response.c_str());
+
+                for (rapidjson::Value::ConstValueIterator itr = checkpointsJson.Begin(); itr != checkpointsJson.End(); ++itr) {
+                    if (itr->HasMember("height")) {
+                        uint64_t height = (*itr)["height"].GetInt64();
+                        std::stringstream hD;
+                        hD << (*itr)["hash"].GetString() << ":" << (*itr)["c_difficulty"].GetString();
+                        m.insert({height, hD.str()});
+                    }
+                }
+            }
+            catch(...){
+                m.insert({0, "3fa5c8976978f52ad7d8fc3663e902a229a232ef987fc11ca99628366652ba99:0x1"});
+            }
+        }
+        return m;
     }
     //---------------------------------------------------------------------------
     std::string diardi::getMajority(std::vector<std::string> &checkpoints)
