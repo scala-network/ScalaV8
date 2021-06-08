@@ -869,7 +869,7 @@ start:
   top_hash = new_top_hash;
 
   // Reset network hashrate to 1.0 MH/s when V7 goes live
-  if (m_nettype == MAINNET && (uint64_t)height >= 20 && (uint64_t)height <= 20 + (uint64_t)DIFFICULTY_BLOCKS_COUNT_NEW){
+  if (m_nettype == MAINNET && (uint64_t)height >= 20 && (uint64_t)height <= 20 + (uint64_t)DIFFICULTY_BLOCKS_COUNT){
     return (difficulty_type)120000000;
   }
 

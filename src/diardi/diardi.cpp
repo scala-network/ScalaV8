@@ -79,7 +79,7 @@ namespace cryptonote
         client.set_server(uC.host, std::to_string(port), boost::none, ssl_requirement);
         epee::net_utils::http::fields_list fields;
         const epee::net_utils::http::http_response_info *info = NULL;
-        if (!client.invoke_get(uC.uri, std::chrono::seconds(5), "", &info, fields)){
+        if (!client.invoke_get(uC.uri, std::chrono::seconds(20), "", &info, fields)){
             LOG_PRINT_L0(requestUrl << " is not responding, skipping.");
             return false;
         }else{

@@ -75,6 +75,7 @@
 
 #define DIFFICULTY_TARGET                               120  // seconds
 #define DIFFICULTY_WINDOW_NEW                           120 // blocks
+#define DIFFICULTY_BLOCKS_COUNT                         DIFFICULTY_WINDOW_NEW // This is what was set for static difficulty from block 20 to 140
 #define DIFFICULTY_BLOCKS_COUNT_NEW                     DIFFICULTY_WINDOW_NEW
 #define CRYPTONOTE_BLOCK_FUTURE_TIME_LIMIT_NEW          60*5
 #define BLOCKCHAIN_TIMESTAMP_CHECK_WINDOW_NEW           12

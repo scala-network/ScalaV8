@@ -38,8 +38,8 @@ counterEnd = math.floor(currentPrime / splitBy) + 1;
 i = 0
 finJson = []
 
-blockHeaders100 = getBlocksByRange(0, 100)["result"]["headers"]
-for block in blockHeaders100:
+blockHeaders200 = getBlocksByRange(0, 200)["result"]["headers"]
+for block in blockHeaders200:
     print(block["hash"], block["height"], block["wide_cumulative_difficulty"])
     oneJson = {"height": block["height"], "hash": block["hash"], "c_difficulty":block["wide_cumulative_difficulty"]}
     finJson.append(oneJson)
