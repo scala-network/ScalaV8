@@ -63,5 +63,4 @@ jobs:
       with:
         name: ${{ matrix.toolchain.name }}
         path: |
-          /home/runner/work/ScalaV8/ScalaV8/build/${{ matrix.toolchain.host }}/release/bin/scala-wallet-cli*
-          /home/runner/work/ScalaV8/ScalaV8/build/${{ matrix.toolchain.host }}/release/bin/scalad*
+          /home/runner/work/ScalaV8/ScalaV8/build/${{ matrix.toolchain.host }}/release/bin/scala*
