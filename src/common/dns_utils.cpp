@@ -344,7 +344,7 @@ std::vector<std::string> DNSResolver::get_record(const std::string& url, int rec
     dnssec_available = (result->secure || result->bogus);
     dnssec_valid = result->secure && !result->bogus;
     if (dnssec_available && !dnssec_valid)
-      MWARNING("Invalid DNSSEC " << get_record_name(record_type) << " record signature for " << url << ": " << result->why_bogus);
+      LOG_PRINT_L1("Invalid DNSSEC " << get_record_name(record_type) << " record signature for " << url << ": " << result->why_bogus);
     if (result->havedata)
     {
       for (size_t i=0; result->data[i] != NULL; i++)

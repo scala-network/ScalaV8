@@ -56,12 +56,12 @@ static std::vector<std::string> lookup(lookup_t type, const char *hostname)
   }
   if (!dnssec_available)
   {
-    MWARNING("No DNSSEC for " << hostname);
+    LOG_PRINT_L1("No DNSSEC for " << hostname);
     return {};
   }
   if (!dnssec_valid)
   {
-    MWARNING("Invalid DNSSEC check for " << hostname);
+    LOG_PRINT_L1("Invalid DNSSEC check for " << hostname);
     return {};
   }
   MINFO(res.size() << " valid signed result(s) for " << hostname);
