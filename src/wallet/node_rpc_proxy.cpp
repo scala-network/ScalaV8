@@ -51,7 +51,7 @@ using namespace epee;
 namespace tools
 {
 
-static const std::chrono::seconds rpc_timeout = std::chrono::minutes(3) + std::chrono::seconds(30);
+static const std::chrono::seconds rpc_timeout = std::chrono::seconds(10);
 
 NodeRPCProxy::NodeRPCProxy(epee::net_utils::http::abstract_http_client &http_client, rpc_payment_state_t &rpc_payment_state, boost::recursive_mutex &mutex)
   : m_http_client(http_client)
@@ -162,7 +162,7 @@ boost::optional<std::string> NodeRPCProxy::get_target_height(uint64_t &height)
   auto res = get_info();
   if (res)
     return res;
-  height = m_target_height;
+  height = m_target_height > m_height ? m_target_height : m_height;
   return boost::optional<std::string>();
 }
 

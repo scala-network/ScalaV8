@@ -1526,6 +1526,14 @@ void wallet2::add_subaddress_account(const std::string& label)
   m_subaddress_labels[index_major][0] = label;
 }
 //----------------------------------------------------------------------------------------------------
+bool wallet2::get_subaddress_used(const cryptonote::subaddress_index& index)
+{
+ return std::find_if(m_transfers.begin(), m_transfers.end(),
+   [this, index](const transfer_details &td) {
+     return td.m_subaddr_index == index;
+   }) != m_transfers.end();
+}
+//----------------------------------------------------------------------------------------------------
 void wallet2::add_subaddress(uint32_t index_major, const std::string& label)
 {
   THROW_WALLET_EXCEPTION_IF(index_major >= m_subaddress_labels.size(), error::account_index_outofbound);
@@ -2155,6 +2163,7 @@ void wallet2::process_new_transaction(const crypto::hash &txid, const cryptonote
           uint64_t amount = tx.vout[o].amount ? tx.vout[o].amount : tx_scan_info[o].amount;
           if (!pool)
           {
+      boost::unique_lock<boost::shared_mutex> lock(m_transfers_mutex);
 	    m_transfers.push_back(transfer_details{});
 	    transfer_details& td = m_transfers.back();
 	    td.m_block_height = height;
@@ -2257,6 +2266,7 @@ void wallet2::process_new_transaction(const crypto::hash &txid, const cryptonote
           uint64_t extra_amount = amount - m_transfers[kit->second].amount();
           if (!pool)
           {
+            boost::unique_lock<boost::shared_mutex> lock(m_transfers_mutex);
             transfer_details &td = m_transfers[kit->second];
 	    td.m_block_height = height;
 	    td.m_internal_output_index = o;
@@ -3199,6 +3209,53 @@ void wallet2::update_pool_state(std::vector<std::tuple<cryptonote::transaction, 
   MTRACE("update_pool_state end");
 }
 //----------------------------------------------------------------------------------------------------
+void wallet2::import_tx(const std::string &txid, std::vector<uint64_t> &o_indices, uint64_t height, uint8_t block_version, uint64_t ts, bool miner_tx, bool pool, bool double_spend_seen)
+{
+    crypto::hash hash;
+    epee::string_tools::hex_to_pod(txid, hash);
+
+    cryptonote::COMMAND_RPC_GET_TRANSACTIONS::request req;
+    cryptonote::COMMAND_RPC_GET_TRANSACTIONS::response res;
+    req.txs_hashes.push_back(epee::string_tools::pod_to_hex(hash));
+
+    req.decode_as_json = false;
+    req.prune = true;
+
+    bool r;
+    {
+        const boost::lock_guard<boost::recursive_mutex> lock{m_daemon_rpc_mutex};
+        uint64_t pre_call_credits = m_rpc_payment_state.credits;
+        req.client = get_client_signature();
+        r = epee::net_utils::invoke_http_json("/gettransactions", req, res, *m_http_client, rpc_timeout);
+        if (r && res.status == CORE_RPC_STATUS_OK)
+            check_rpc_cost("/gettransactions", res.credits, pre_call_credits, res.txs.size() * COST_PER_TX);
+    }
+
+    MDEBUG("Got " << r << " and " << res.status);
+    if (!(r && res.status == CORE_RPC_STATUS_OK)) {
+        THROW_WALLET_EXCEPTION(error::wallet_internal_error, "Error calling gettransactions daemon RPC: r " + std::to_string(r) + ", status " + get_rpc_status(res.status));
+    }
+
+    if (res.txs.size() != 1) {
+        THROW_WALLET_EXCEPTION(error::wallet_internal_error, "Expected 1 tx, got " + std::to_string(res.txs.size()));
+    }
+
+    const auto &tx_entry = res.txs[0];
+    cryptonote::transaction tx;
+    cryptonote::blobdata bd;
+    crypto::hash tx_hash;
+
+    if (!get_pruned_tx(tx_entry, tx, tx_hash)) {
+        THROW_WALLET_EXCEPTION(error::wallet_internal_error, "Failed to parse transaction from daemon");
+    }
+
+    if (tx_hash != hash) {
+        THROW_WALLET_EXCEPTION(error::wallet_internal_error, "Got txid " + epee::string_tools::pod_to_hex(tx_hash) + " which we did not ask for");
+    }
+
+    process_new_transaction(tx_hash, tx, o_indices, height, block_version, ts, miner_tx, pool, double_spend_seen, {});
+}
+//----------------------------------------------------------------------------------------------------
 void wallet2::process_pool_state(const std::vector<std::tuple<cryptonote::transaction, crypto::hash, bool>> &txs)
 {
   const time_t now = time(NULL);
@@ -3221,11 +3278,19 @@ void wallet2::fast_refresh(uint64_t stop_height, uint64_t &blocks_start_height, 
 {
   std::vector<crypto::hash> hashes;
 
-  const uint64_t checkpoint_height = m_checkpoints.get_max_height();
+
+  // Get highest checkpoint that is lower than stop_height
+  uint64_t checkpoint_height = 0;
+  for (auto i : m_checkpoints.get_points()) {
+   if (i.first > stop_height) {
+     break;
+   }
+   checkpoint_height = i.first;
+  }
   if ((stop_height > checkpoint_height && m_blockchain.size()-1 < checkpoint_height) && !force)
   {
     // we will drop all these, so don't bother getting them
-    uint64_t missing_blocks = m_checkpoints.get_max_height() - m_blockchain.size();
+    uint64_t missing_blocks = checkpoint_height - m_blockchain.size();
     while (missing_blocks-- > 0)
       m_blockchain.push_back(crypto::null_hash); // maybe a bit suboptimal, but deque won't do huge reallocs like vector
     m_blockchain.push_back(m_checkpoints.get_points().at(checkpoint_height));
@@ -5495,6 +5560,296 @@ void wallet2::write_watch_only_wallet(const std::string& wallet_name, const epee
   THROW_WALLET_EXCEPTION_IF(!r, error::file_save_error, new_keys_filename);
 }
 //----------------------------------------------------------------------------------------------------
+std::string wallet2::printBlockchain()
+{
+  std::string blstr;
+  blstr += "offset: " + std::to_string(m_blockchain.offset()) + "\n";
+  blstr += "genesis: " + string_tools::pod_to_hex(m_blockchain.genesis()) + "\n";
+
+  for (size_t i = m_blockchain.offset(); i < m_blockchain.size(); i++) {
+      blstr += std::to_string(i) + " : " + string_tools::pod_to_hex(m_blockchain[i]) + "\n";
+  }
+
+  return blstr;
+}
+std::string wallet2::printTransfers()
+{
+    std::string str;
+    for (const auto &td : m_transfers) {
+        str += "block_height: " + std::to_string(td.m_block_height) + "\n";
+        str += printTxPrefix(td.m_tx);
+        str += "txid: " + string_tools::pod_to_hex(td.m_txid) + "\n";
+        str += "internal_output_index: " + std::to_string(td.m_internal_output_index) + "\n";
+        str += "global_output_index: " + std::to_string(td.m_global_output_index) + "\n";
+        str += "spent: " + std::to_string(td.m_spent) + "\n";
+        str += "frozen: " + std::to_string(td.m_frozen) + "\n";
+        str += "spent_height: " + std::to_string(td.m_spent_height) + "\n";
+        str += "key_image: " + string_tools::pod_to_hex(td.m_key_image) + "\n";
+        str += "mask: " + string_tools::pod_to_hex(td.m_mask) + "\n";
+        str += "amount: " + std::to_string(td.m_amount) + "\n";
+        str += "rct: " + std::to_string(td.m_rct) + "\n";
+        str += "key_image_known: " + std::to_string(td.m_key_image_known) + "\n";
+        str += "key_image_request: " + std::to_string(td.m_key_image_request) + "\n";
+        str += "pk_index: " + std::to_string(td.m_pk_index) + "\n";
+        str += "subaddr_index: " + std::to_string(td.m_subaddr_index.major) + "," + std::to_string(td.m_subaddr_index.minor) + "\n";
+        str += "key_image_partial: " + std::to_string(td.m_key_image_partial) + "\n";
+        str += "multisig_k:\n";
+        for (const auto &el : td.m_multisig_k) {
+            str += "  " + string_tools::pod_to_hex(el) + "\n";
+        }
+        str += "multisig_info:\n";
+        for (const auto &el : td.m_multisig_info) {
+            str += "  signer: " + string_tools::pod_to_hex(el.m_signer) + "\n";
+            str += "  LR:\n";
+            for (const auto &em : el.m_LR) {
+                str += "    L: " + string_tools::pod_to_hex(em.m_L) + "\n";
+                str += "    R: " + string_tools::pod_to_hex(em.m_R) + "\n";
+            }
+            str += "\n";
+            str += "  partial_key_images:\n";
+            for (const auto &em : el.m_partial_key_images) {
+                str += "    "  + string_tools::pod_to_hex(em) + "\n";
+            }
+            str += "\n";
+        }
+        str += "uses:\n";
+        for (const auto &el : td.m_uses) {
+            str += "  " + std::to_string(el.first) + " : " + string_tools::pod_to_hex(el.second) + "\n";
+        }
+        str += "\n";
+    }
+    return str;
+}
+std::string wallet2::printUnconfirmedPayments()
+{
+    std::string str;
+    for (const auto &el : m_unconfirmed_payments) {
+        auto ppd = el.second;
+        str += "double_spend_seen: " + std::to_string(ppd.m_double_spend_seen) + "\n";
+        str += printPaymentDetails(ppd.m_pd);
+        str += "\n";
+    }
+    return str;
+}
+std::string wallet2::printConfirmedTransferDetails()
+{
+    std::string str;
+    for (const auto &el : m_confirmed_txs) {
+        auto ctd = el.second;
+        str += "amount_in: " + std::to_string(ctd.m_amount_in) + "\n";
+        str += "amount_out: " + std::to_string(ctd.m_amount_out) + "\n";
+        str += "change: " + std::to_string(ctd.m_change) + "\n";
+        str += "block_height: " + std::to_string(ctd.m_block_height) + "\n";
+        str += "dests:\n";
+        for (const auto &em : ctd.m_dests) {
+            str += printTxDestinationEntry(em);
+        }
+        str += "payment_id: " + string_tools::pod_to_hex(ctd.m_payment_id) + "\n";
+        str += "timestamp: " + std::to_string(ctd.m_timestamp) + "\n";
+        str += "unlock_time: " + std::to_string(ctd.m_unlock_time) + "\n";
+        str += "subaddr_account: " + std::to_string(ctd.m_subaddr_account) + "\n";
+        str += "subaddr_indices: ";
+        for (auto em : ctd.m_subaddr_indices) {
+            str += std::to_string(em);
+        }
+        str += "\n\n";
+    }
+    return str;
+}
+std::string wallet2::printUnconfirmedTransferDetails()
+{
+    std::string str;
+    for (const auto &el : m_unconfirmed_txs) {
+        auto utd = el.second;
+        str += printTxPrefix(utd.m_tx);
+        str += "amount_in: " + std::to_string(utd.m_amount_in) + "\n";
+        str += "amount_out: " + std::to_string(utd.m_amount_out) + "\n";
+        str += "change: " + std::to_string(utd.m_change) + "\n";
+        str += "sent_time: " + std::to_string(utd.m_sent_time) + "\n";
+        str += "dests:\n";
+        for (const auto &em : utd.m_dests) {
+            str += printTxDestinationEntry(em);
+        }
+        str += "payment_id: " + string_tools::pod_to_hex(utd.m_payment_id) + "\n";
+        str += "timestamp: " + std::to_string(utd.m_timestamp) + "\n";
+        str += "subaddr_account: " + std::to_string(utd.m_subaddr_account) + "\n";
+        str += "subaddr_indices: ";
+        for (auto em : utd.m_subaddr_indices) {
+            str += std::to_string(em);
+        }
+        str += "\n\n";
+    }
+    return str;
+}
+std::string wallet2::printPayments()
+{
+    std::string str;
+    for (const auto &el : m_payments) {
+        str += printPaymentDetails(el.second) + "\n";
+    }
+    return str;
+}
+std::string wallet2::printPubKeys()
+{
+  std::string str;
+  vector<std::pair<crypto::public_key, size_t>> v;
+  for (const auto &el : m_pub_keys) {
+      v.push_back(el);
+  }
+  std::sort(v.begin(), v.end(),
+            [](std::pair<crypto::public_key, size_t> a, std::pair<crypto::public_key, size_t> b){return a.second < b.second;});
+  for (const auto &el : v){
+      str += string_tools::pod_to_hex(el.first) + " : " + boost::to_string(el.second) + "\n";
+  }
+  return str;
+}
+std::string wallet2::printTxNotes()
+{
+    std::string str;
+    for (std::pair<crypto::hash, std::string> el : m_tx_notes) {
+        str += string_tools::pod_to_hex(el.first) + " : " + el.second + "\n";
+    }
+    return str;
+}
+std::string wallet2::printSubaddresses()
+{
+    std::string str;
+    vector<std::pair<crypto::public_key, cryptonote::subaddress_index>> v;
+    for (const auto &el : m_subaddresses) {
+        v.push_back(el);
+    }
+    std::sort(v.begin(), v.end(),
+              [](std::pair<crypto::public_key, cryptonote::subaddress_index> a, std::pair<crypto::public_key, cryptonote::subaddress_index> b){
+        if (a.second.major == b.second.major) {
+            return a.second.minor < b.second.minor;
+        }
+        return a.second.major < b.second.major;
+    });
+    for (const auto &el : v) {
+        str += string_tools::pod_to_hex(el.first) + " : " + std::to_string(el.second.major) + "," + std::to_string(el.second.minor) + "\n";
+    }
+    return str;
+}
+std::string wallet2::printSubaddressLabels()
+{
+    std::string str;
+    for (size_t i = 0; i < m_subaddress_labels.size(); i++) {
+        for (size_t j = 0; j < m_subaddress_labels[i].size(); j++) {
+            str += std::to_string(i) + "," + std::to_string(j) + " : " + m_subaddress_labels[i][j] + "\n";
+        }
+    }
+    return str;
+}
+std::string wallet2::printAdditionalTxKeys()
+{
+    std::string str;
+    for (std::pair<crypto::hash, std::vector<crypto::secret_key>> el : m_additional_tx_keys) {
+        str += "Txid: " + string_tools::pod_to_hex(el.first) + " (" + std::to_string(el.second.size()) + ")\n";
+        for (auto em : el.second) {
+            str += "  " + string_tools::pod_to_hex(em) + "\n";
+        }
+    }
+    return str;
+}
+std::string wallet2::printAttributes()
+{
+    std::string str;
+    for (auto el : m_attributes) {
+        str += el.first + " : " + el.second + "\n";
+    }
+    return str;
+}
+std::string wallet2::printKeyImages()
+{
+    std::string str;
+    vector<std::pair<crypto::key_image, size_t>> v;
+    for (const auto &el : m_key_images) {
+        v.push_back(el);
+    }
+    std::sort(v.begin(), v.end(),
+      [](std::pair<crypto::key_image, size_t> a, std::pair<crypto::key_image, size_t> b){return a.second < b.second;});
+    for (const auto &el: v) {
+        str += string_tools::pod_to_hex(el.first) + " : " + boost::to_string(el.second) + "\n";
+    }
+    return str;
+}
+std::string wallet2::printAccountTags()
+{
+    std::string str;
+    for (size_t i = 0; i < m_account_tags.second.size(); i++) {
+        str += std::to_string(i) + " : " + m_account_tags.second[i] + "\n";
+    }
+    return str;
+}
+std::string wallet2::printTxKeys()
+{
+    std::string str;
+    for (std::pair<crypto::hash, crypto::secret_key> el : m_tx_keys) {
+        str += string_tools::pod_to_hex(el.first) + " : " + string_tools::pod_to_hex(el.second) + "\n";
+    }
+    return str;
+}
+std::string wallet2::printAddressBook()
+{
+    std::string str;
+    for (auto el : m_address_book) {
+        str += "address: " + string_tools::pod_to_hex(el.m_address) + "\n";
+        str += "payment_id: " + string_tools::pod_to_hex(el.m_payment_id) + "\n";
+        str += "description: " + el.m_description + "\n";
+        str += "is_subaddress: " + std::to_string(el.m_is_subaddress) + "\n";
+        str += "has_payment_id: " + std::to_string(el.m_has_payment_id) + "\n";
+        str += "\n";
+    }
+    return str;
+}
+std::string wallet2::printScannedPoolTxs()
+{
+    std::string str;
+    for (size_t i = 0; i < 2; i++) {
+        str += "scanned_pool_txs[" + std::to_string(i) + "]\n";
+        for (auto el : m_scanned_pool_txs[i]) {
+            str += string_tools::pod_to_hex(el) + "\n";
+        }
+        str += "\n";
+    }
+    return str;
+}
+std::string wallet2::printTxPrefix(const cryptonote::transaction_prefix &tx)
+{
+    std::string str;
+    str += "tx.version: " + std::to_string(tx.version) + "\n";
+    str += "tx.unlock_time: " + std::to_string(tx.unlock_time) + "\n";
+    return str;
+}
+std::string wallet2::printPaymentDetails(const payment_details &pd)
+{
+    std::string str;
+    str += "tx_hash: " + string_tools::pod_to_hex(pd.m_tx_hash) + "\n";
+    str += "amount: " + std::to_string(pd.m_amount) + "\n";
+    str += "amounts: ";
+    for (auto em : pd.m_amounts) {
+        str += std::to_string(em);
+    }
+    str += "\n";
+    str += "fee: " + std::to_string(pd.m_fee) + "\n";
+    str += "block_height: " + std::to_string(pd.m_block_height) + "\n";
+    str += "unlock_time: " + std::to_string(pd.m_unlock_time) + "\n";
+    str += "timestamp: " + std::to_string(pd.m_timestamp) + "\n";
+    str += "coinbase: " + std::to_string(pd.m_coinbase) + "\n";
+    str += "subaddr_index: " + std::to_string(pd.m_subaddr_index.major) + "," + std::to_string(pd.m_subaddr_index.minor) + "\n";
+    return str;
+}
+std::string wallet2::printTxDestinationEntry(const cryptonote::tx_destination_entry &tx)
+{
+    std::string str;
+    str += "  original: " + tx.original + "\n";
+    str += "  amount: " + std::to_string(tx.amount) + "\n";
+    str += "  addr: " + string_tools::pod_to_hex(tx.addr) + "\n";
+    str += "  is_subaddress: " + std::to_string(tx.is_subaddress) + "\n";
+    str += "  is_integrated: " + std::to_string(tx.is_integrated) + "\n";
+    return str;
+}
+//----------------------------------------------------------------------------------------------------
 void wallet2::wallet_exists(const std::string& file_path, bool& keys_file_exists, bool& wallet_file_exists)
 {
   std::string keys_file, wallet_file, mms_file;
@@ -6091,6 +6446,13 @@ std::map<uint32_t, uint64_t> wallet2::balance_per_subaddress(uint32_t index_majo
         found->second += utx.second.m_change;
     }
    }
+
+   
+      for (const auto& utx: m_unconfirmed_payments) {
+          if (utx.second.m_pd.m_subaddr_index.major == index_major) {
+              amount_per_subaddr[utx.second.m_pd.m_subaddr_index.minor] += utx.second.m_pd.m_amount;
+          }
+      }
 
    for (const auto& utx: m_unconfirmed_payments)
    {
@@ -12220,19 +12582,10 @@ uint64_t wallet2::get_daemon_blockchain_target_height(string &err)
 
 uint64_t wallet2::get_approximate_blockchain_height() const
 {
-  // time of v2 fork
-  const time_t fork_time = m_nettype == TESTNET ? 1448285909 : m_nettype == STAGENET ? 1520937818 : 1458748658;
-  // v2 fork block
-  const uint64_t fork_block = m_nettype == TESTNET ? 624634 : m_nettype == STAGENET ? 32000 : 1009827;
-  // avg seconds per block
   const int seconds_per_block = DIFFICULTY_TARGET;
-  // Calculated blockchain height
-  uint64_t approx_blockchain_height = fork_block + (time(NULL) - fork_time)/seconds_per_block;
-  // testnet got some huge rollbacks, so the estimation is way off
-  static const uint64_t approximate_testnet_rolled_back_blocks = 342100;
-  if (m_nettype == TESTNET && approx_blockchain_height > approximate_testnet_rolled_back_blocks)
-    approx_blockchain_height -= approximate_testnet_rolled_back_blocks;
-  LOG_PRINT_L2("Calculated blockchain height: " << approx_blockchain_height);
+  const time_t epochTimeMiningStarted = 1596296667;
+  uint64_t approx_blockchain_height   = (time(NULL) - epochTimeMiningStarted)/seconds_per_block;
+  
   return approx_blockchain_height;
 }
 

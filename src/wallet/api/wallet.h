@@ -47,7 +47,10 @@ class PendingTransactionImpl;
 class UnsignedTransactionImpl;
 class AddressBookImpl;
 class SubaddressImpl;
+class CoinsImpl;
 class SubaddressAccountImpl;
+class PendingTransactionInfoImpl;
+class TransactionConstructionInfoImpl;
 struct Wallet2CallbackImpl;
 
 class WalletImpl : public Wallet
@@ -77,6 +80,11 @@ public:
                             const std::string &address_string, 
                             const std::string &viewkey_string,
                             const std::string &spendkey_string = "");
+
+    bool recoverDeterministicWalletFromSpendKey(const std::string &path,
+                                                const std::string &password,
+                                                const std::string &language,
+                                                const std::string &spendkey_string);
     bool recoverFromDevice(const std::string &path,
                            const std::string &password,
                            const std::string &device_name);
@@ -90,9 +98,11 @@ public:
     std::string errorString() const override;
     void statusWithErrorString(int& status, std::string& errorString) const override;
     bool setPassword(const std::string &password) override;
+    std::string getPassword() const override;
     bool setDevicePin(const std::string &password) override;
     bool setDevicePassphrase(const std::string &password) override;
     std::string address(uint32_t accountIndex = 0, uint32_t addressIndex = 0) const override;
+    bool subaddressIndex(std::string address, std::pair<uint32_t, uint32_t> &index) const override;
     std::string integratedAddress(const std::string &payment_id) const override;
     std::string secretViewKey() const override;
     std::string publicViewKey() const override;
@@ -163,19 +173,46 @@ public:
                                         PendingTransaction::Priority priority = PendingTransaction::Priority_Low,
                                         uint32_t subaddr_account = 0,
                                         std::set<uint32_t> subaddr_indices = {}) override;
+
+    PendingTransaction * createTransactionSingle(const std::string &key_image, const std::string &dst_addr,
+            size_t outputs = 1, PendingTransaction::Priority priority = PendingTransaction::Priority_Low) override;
     virtual PendingTransaction * createSweepUnmixableTransaction() override;
     bool submitTransaction(const std::string &fileName) override;
     virtual UnsignedTransaction * loadUnsignedTx(const std::string &unsigned_filename) override;
+    virtual UnsignedTransaction * loadUnsignedTxFromStr(const std::string &unsigned_tx) override;
+    virtual UnsignedTransaction * loadUnsignedTxFromBase64Str(const std::string &unsigned_tx) override;
+    virtual PendingTransaction * loadSignedTx(const std::string &signed_filename) override;
     bool exportKeyImages(const std::string &filename, bool all = false) override;
     bool importKeyImages(const std::string &filename) override;
     bool exportOutputs(const std::string &filename, bool all = false) override;
     bool importOutputs(const std::string &filename) override;
+    bool importTransaction(const std::string &txid, std::vector<uint64_t> &o_indices, uint64_t height, uint8_t block_version, uint64_t ts, bool miner_tx, bool pool, bool double_spend_seen) override;
+
+
+    virtual std::string printBlockchain() override;
+    virtual std::string printTransfers() override;
+    virtual std::string printPayments() override;
+    virtual std::string printUnconfirmedPayments() override;
+    virtual std::string printConfirmedTransferDetails() override;
+    virtual std::string printUnconfirmedTransferDetails() override;
+    virtual std::string printPubKeys() override;
+    virtual std::string printTxNotes() override;
+    virtual std::string printSubaddresses() override;
+    virtual std::string printSubaddressLabels() override;
+    virtual std::string printAdditionalTxKeys() override;
+    virtual std::string printAttributes() override;
+    virtual std::string printKeyImages() override;
+    virtual std::string printAccountTags() override;
+    virtual std::string printTxKeys() override;
+    virtual std::string printAddressBook() override;
+    virtual std::string printScannedPoolTxs() override;
 
     virtual void disposeTransaction(PendingTransaction * t) override;
     virtual uint64_t estimateTransactionFee(const std::vector<std::pair<std::string, uint64_t>> &destinations,
                                             PendingTransaction::Priority priority) const override;
     virtual TransactionHistory * history() override;
     virtual AddressBook * addressBook() override;
+    virtual Coins * coins() override;
     virtual Subaddress * subaddress() override;
     virtual SubaddressAccount * subaddressAccount() override;
     virtual void setListener(WalletListener * l) override;
@@ -197,7 +234,7 @@ public:
     virtual bool checkSpendProof(const std::string &txid, const std::string &message, const std::string &signature, bool &good) const override;
     virtual std::string getReserveProof(bool all, uint32_t account_index, uint64_t amount, const std::string &message) const override;
     virtual bool checkReserveProof(const std::string &address, const std::string &message, const std::string &signature, bool &good, uint64_t &total, uint64_t &spent) const override;
-    virtual std::string signMessage(const std::string &message) override;
+    virtual std::string signMessage(const std::string &message, const std::string &address) override;
     virtual bool verifySignedMessage(const std::string &message, const std::string &address, const std::string &signature) const override;
     virtual std::string signMultisigParticipant(const std::string &message) const override;
     virtual bool verifyMessageWithPublicKey(const std::string &message, const std::string &publicKey, const std::string &signature) const override;
@@ -221,6 +258,8 @@ public:
     virtual bool isKeysFileLocked() override;
     virtual uint64_t coldKeyImageSync(uint64_t &spent, uint64_t &unspent) override;
     virtual void deviceShowAddress(uint32_t accountIndex, uint32_t addressIndex, const std::string &paymentId) override;
+    virtual uint64_t getBytesReceived() override;
+    virtual uint64_t getBytesSent() override;
 
 private:
     void clearStatus() const;
@@ -242,7 +281,10 @@ private:
     friend struct Wallet2CallbackImpl;
     friend class AddressBookImpl;
     friend class SubaddressImpl;
+    friend class CoinsImpl;
     friend class SubaddressAccountImpl;
+    friend class PendingTransactionInfoImpl;
+    friend class TransactionConstructionInfoImpl;
 
     std::unique_ptr<tools::wallet2> m_wallet;
     mutable boost::mutex m_statusMutex;
@@ -253,6 +295,7 @@ private:
     std::unique_ptr<Wallet2CallbackImpl> m_wallet2Callback;
     std::unique_ptr<AddressBookImpl>  m_addressBook;
     std::unique_ptr<SubaddressImpl>  m_subaddress;
+    std::unique_ptr<CoinsImpl> m_coins;
     std::unique_ptr<SubaddressAccountImpl>  m_subaddressAccount;
 
     // multi-threaded refresh stuff
