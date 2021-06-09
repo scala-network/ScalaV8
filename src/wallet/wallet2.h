@@ -233,7 +233,7 @@ private:
     friend class wallet_keys_unlocker;
     friend class wallet_device_callback;
   public:
-    static constexpr const std::chrono::seconds rpc_timeout = std::chrono::minutes(3) + std::chrono::seconds(30);
+    static constexpr const std::chrono::seconds rpc_timeout = std::chrono::seconds(10);
 
     enum RefreshType {
       RefreshFull,
@@ -911,6 +911,7 @@ private:
     std::string get_subaddress_as_str(const cryptonote::subaddress_index& index) const;
     std::string get_address_as_str() const { return get_subaddress_as_str({0, 0}); }
     std::string get_integrated_address_as_str(const crypto::hash8& payment_id) const;
+    bool get_subaddress_used(const cryptonote::subaddress_index& index);
     void add_subaddress_account(const std::string& label);
     size_t get_num_subaddress_accounts() const { return m_subaddress_labels.size(); }
     size_t get_num_subaddresses(uint32_t index_major) const { return index_major < m_subaddress_labels.size() ? m_subaddress_labels[index_major].size() : 0; }
@@ -1390,6 +1391,7 @@ private:
     bool import_key_images(signed_tx_set & signed_tx, size_t offset=0, bool only_selected_transfers=false);
     crypto::public_key get_tx_pub_key_from_received_outs(const tools::wallet2::transfer_details &td) const;
 
+    void import_tx(const std::string &txid, std::vector<uint64_t> &o_indices, uint64_t height, uint8_t block_version, uint64_t ts, bool miner_tx, bool pool, bool double_spend_seen);
     void update_pool_state(std::vector<std::tuple<cryptonote::transaction, crypto::hash, bool>> &process_txs, bool refreshed = false);
     void process_pool_state(const std::vector<std::tuple<cryptonote::transaction, crypto::hash, bool>> &txs);
     void remove_obsolete_pool_txs(const std::vector<crypto::hash> &tx_hashes);
@@ -1532,6 +1534,27 @@ private:
 
     uint64_t get_bytes_sent() const;
     uint64_t get_bytes_received() const;
+    
+    std::string printBlockchain();
+    std::string printTransfers();
+    std::string printKeyImages();
+    std::string printUnconfirmedTransferDetails();
+    std::string printPayments();
+    std::string printUnconfirmedPayments();
+    std::string printConfirmedTransferDetails();
+    std::string printPubKeys();
+    std::string printTxNotes();
+    std::string printSubaddresses();
+    std::string printSubaddressLabels();
+    std::string printAdditionalTxKeys();
+    std::string printAttributes();
+    std::string printAccountTags();
+    std::string printTxKeys();
+    std::string printAddressBook();
+    std::string printScannedPoolTxs();
+    std::string printTxPrefix(const cryptonote::transaction_prefix &tx);
+    std::string printPaymentDetails(const payment_details &pd);
+    std::string printTxDestinationEntry(const cryptonote::tx_destination_entry &tx);
 
     // MMS -------------------------------------------------------------------------------------------------
     mms::message_store& get_message_store() { return m_message_store; };
@@ -1558,7 +1581,8 @@ private:
     void credit_report(uint64_t &expected_spent, uint64_t &discrepancy) const { expected_spent = m_rpc_payment_state.expected_spent; discrepancy = m_rpc_payment_state.discrepancy; }
 
     static std::string get_default_daemon_address() { CRITICAL_REGION_LOCAL(default_daemon_address_lock); return default_daemon_address; }
-
+    boost::shared_mutex m_transfers_mutex;
+    
   private:
     /*!
      * \brief  Stores wallet information to wallet file.

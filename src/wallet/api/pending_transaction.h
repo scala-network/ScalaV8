@@ -31,6 +31,7 @@
 
 #include "wallet/api/wallet2_api.h"
 #include "wallet/wallet2.h"
+#include "pending_transaction_info.h"
 
 #include <string>
 #include <vector>
@@ -54,6 +55,14 @@ public:
     uint64_t txCount() const override;
     std::vector<uint32_t> subaddrAccount() const override;
     std::vector<std::set<uint32_t>> subaddrIndices() const override;
+    std::string unsignedTxToBin() const override;
+    std::string unsignedTxToBase64() const override;
+    std::string signedTxToHex(int index) const override;
+    size_t signedTxSize(int index) const override;
+    void refresh() override;
+    std::vector<PendingTransactionInfo*> getAll() const override;
+    PendingTransactionInfo * transaction(int index) const override;
+
     // TODO: continue with interface;
 
     std::string multisigSignData() override;
@@ -67,6 +76,7 @@ private:
     int  m_status;
     std::string m_errorString;
     std::vector<tools::wallet2::pending_tx> m_pending_tx;
+    std::vector<PendingTransactionInfo*> m_pending_tx_info;
     std::unordered_set<crypto::public_key> m_signers;
     std::vector<std::string> m_tx_device_aux;
     std::vector<crypto::key_image> m_key_images;
