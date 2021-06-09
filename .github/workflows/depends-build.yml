@@ -14,7 +14,7 @@ jobs:
         toolchain:
           - name: "win-x86_64"
             host: "x86_64-w64-mingw32"
-            packages: "cmake python3 g++-mingw-w64-x86-64 qttools5-dev-tools mingw-w64-x86_64-zlib"
+            packages: "cmake python3 g++-mingw-w64-x86-64 qttools5-dev-tools"
           - name: "linux-x86_64"
             host: "x86_64-unknown-linux-gnu"
             packages: "gperf cmake python3-zmq libdbus-1-dev libharfbuzz-dev"
