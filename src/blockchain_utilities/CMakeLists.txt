@@ -182,6 +182,7 @@ set_property(TARGET blockchain_export
 	OUTPUT_NAME "scala-blockchain-export")
 install(TARGETS blockchain_export DESTINATION bin)
 
+#[[
 scala_add_executable(blockchain_blackball
   ${blockchain_blackball_sources}
   ${blockchain_blackball_private_headers})
@@ -203,7 +204,6 @@ set_property(TARGET blockchain_blackball
 	PROPERTY
 	OUTPUT_NAME "scala-blockchain-mark-spent-outputs")
 install(TARGETS blockchain_blackball DESTINATION bin)
-
 
 scala_add_executable(blockchain_usage
   ${blockchain_usage_sources}
@@ -230,6 +230,7 @@ scala_add_executable(blockchain_ancestry
   ${blockchain_ancestry_sources}
   ${blockchain_ancestry_private_headers})
 
+
 target_link_libraries(blockchain_ancestry
   PRIVATE
     cryptonote_core
@@ -246,6 +247,7 @@ set_property(TARGET blockchain_ancestry
 	PROPERTY
 	OUTPUT_NAME "scala-blockchain-ancestry")
 install(TARGETS blockchain_ancestry DESTINATION bin)
+
 
 scala_add_executable(blockchain_depth
   ${blockchain_depth_sources}
@@ -310,6 +312,7 @@ set_property(TARGET blockchain_prune_known_spent_data
 	PROPERTY
 	OUTPUT_NAME "scala-blockchain-prune-known-spent-data")
 install(TARGETS blockchain_prune_known_spent_data DESTINATION bin)
+]]
 
 scala_add_executable(blockchain_prune
   ${blockchain_prune_sources}

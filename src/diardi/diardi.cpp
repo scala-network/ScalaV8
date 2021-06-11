@@ -49,8 +49,21 @@ namespace cryptonote
     
     const std::vector<std::string> diardi::notaryNodes = {
             "alpha.scalaproject.io",
+            "beta.scalaproject.io",
+            "gamma.scalaproject.io",
             "delta.scalaproject.io",
-            "epsilon.scalaproject.io"
+            "epsilon.scalaproject.io",
+            "zeta.scalaproject.io",
+            "eta.scalaproject.io",
+            "theta.scalaproject.io",
+            "iota.scalaproject.io",
+            "kappa.scalaproject.io",
+            "lambda.scalaproject.io",
+            "pi.scalaproject.io",
+            "sigma.scalaproject.io",
+            "phi.scalaproject.io",
+            "omega.scalaproject.io",
+            "zed.scalaproject.io"
     };
 
     /* Initialize for epee HTTP client */

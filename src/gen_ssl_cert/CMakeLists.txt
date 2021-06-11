@@ -29,6 +29,7 @@
 set(gen_ssl_cert_sources
   gen_ssl_cert.cpp)
 
+#[[
 scala_add_executable(gen_ssl_cert
   ${gen_ssl_cert_sources})
 target_link_libraries(gen_ssl_cert
@@ -47,3 +48,4 @@ set_property(TARGET gen_ssl_cert
   PROPERTY
     OUTPUT_NAME "scala-gen-ssl-cert")
 install(TARGETS gen_ssl_cert DESTINATION bin)
+]]
