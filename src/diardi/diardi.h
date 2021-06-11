@@ -123,8 +123,6 @@ namespace cryptonote
 
         bool checkMajority(std::vector<std::string> &checkpoints, std::string& checkpoint);
 
-
-
         static const std::vector<std::string> offlineSeedList;
         static const std::vector<std::string> offlineBansList;
         static const std::string seedsName;

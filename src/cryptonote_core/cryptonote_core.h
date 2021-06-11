@@ -72,6 +72,7 @@ namespace cryptonote
   extern const command_line::arg_descriptor<bool, false> arg_regtest_on;
   extern const command_line::arg_descriptor<difficulty_type> arg_fixed_difficulty;
   extern const command_line::arg_descriptor<bool> arg_offline;
+  extern const command_line::arg_descriptor<bool> arg_disable_ipfs;
   extern const command_line::arg_descriptor<size_t> arg_block_download_max_size;
   extern const command_line::arg_descriptor<bool> arg_sync_pruned_blocks;
 
@@ -1070,7 +1071,7 @@ namespace cryptonote
 
      //m_miner and m_miner_addres are probably temporary here
      miner m_miner; //!< miner instance
-
+     
      std::string m_config_folder; //!< folder to look in for configs and other files
 
      cryptonote_protocol_stub m_protocol_stub; //!< cryptonote protocol stub instance

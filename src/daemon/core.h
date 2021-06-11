@@ -36,6 +36,7 @@
 #include "cryptonote_protocol/cryptonote_protocol_handler.h"
 #include "misc_log_ex.h"
 #include "rapidjson/document.h"
+#include "common/command_line.h"
 
 #if defined(WIN32) || defined(_WIN32) || defined(__WIN32__) || defined(__NT__)
     #include "libipfs/include/libipfs-windows.h"
@@ -75,30 +76,31 @@ public:
   {
     //initialize core here
     MGINFO("Initializing core...");
+    if(!(command_line::has_arg(vm, cryptonote::arg_disable_ipfs))){
+      MGINFO("Initializing IPFS...");
+      const char* IPFSstartMessage = IPFSStartNode((char*)"./");
+      Document startMessage;
+      startMessage.Parse(IPFSstartMessage);
+      std::string parsedMessage = startMessage["Message"].GetString();
+      std::chrono::seconds ipfsWaitDuration(20);
 
-    //initialize IPFS here
-    MGINFO("Initializing IPFS...");
+      if ((parsedMessage.find("started on port") != std::string::npos)) {
+        MGINFO("Initialized new IPFS daemon...");
+        std::this_thread::sleep_for( ipfsWaitDuration );
+      }
 
-    const char* IPFSstartMessage = IPFSStartNode((char*)"./");
-    Document startMessage;
-    startMessage.Parse(IPFSstartMessage);
-    std::string parsedMessage = startMessage["Message"].GetString();
+      else if(parsedMessage.find("busy") != std::string::npos){
+        MGINFO("Reusing existing running IPFS daemon...");
+        std::this_thread::sleep_for( ipfsWaitDuration );
+      }
 
-    std::chrono::seconds ipfsWaitDuration(20);
-
-    if ((parsedMessage.find("started on port") != std::string::npos)) {
-      MGINFO("Initialized new IPFS daemon...");
-      std::this_thread::sleep_for( ipfsWaitDuration );
+      else{
+        MGINFO("Could not initialize IPFS...");
+        m_core.graceful_exit();
+      }
+    }else{
+      MGINFO("Not starting IPFS daemon...");
     }
-    else if(parsedMessage.find("busy") != std::string::npos){
-      MGINFO("Reusing existing running IPFS daemon...");
-      std::this_thread::sleep_for( ipfsWaitDuration );
-    }
-    else{
-      MGINFO("Could not initialize IPFS...");
-      m_core.graceful_exit();
-    }
-
     #if defined(PER_BLOCK_CHECKPOINT)
         const cryptonote::GetCheckpointsCallback& get_checkpoints = blocks::GetCheckpointsData;
     #else
@@ -135,13 +137,15 @@ public:
       m_core.deinit();
       m_core.set_cryptonote_protocol(nullptr);
 
-      MGINFO("Deinitializing IPFS...");
-      const char* IPFSstopMessage = IPFSStopNode();
-      Document stopMessage;
-      stopMessage.Parse(IPFSstopMessage);
-      std::string parsedMessage = stopMessage["Message"].GetString();
-      if (parsedMessage.find("IPFS node stopped") != std::string::npos) {
-        MGINFO("IPFS daemon stopped...");
+      if(!(command_line::has_arg(m_vm_HACK, cryptonote::arg_disable_ipfs))){
+        MGINFO("Deinitializing IPFS...");
+        const char* IPFSstopMessage = IPFSStopNode();
+        Document stopMessage;
+        stopMessage.Parse(IPFSstopMessage);
+        std::string parsedMessage = stopMessage["Message"].GetString();
+        if (parsedMessage.find("IPFS node stopped") != std::string::npos) {
+          MGINFO("IPFS daemon stopped...");
+        }
       }
 
     } catch (...) {

@@ -116,6 +116,10 @@ namespace cryptonote
     "offline"
   , "Do not listen for peers, nor connect to any"
   };
+  const command_line::arg_descriptor<bool> arg_disable_ipfs = {
+    "disable-ipfs"
+  , "Stop IPFS from starting or running"
+  };
   const command_line::arg_descriptor<bool> arg_disable_dns_checkpoints = {
     "disable-dns-checkpoints"
   , "Do not retrieve checkpoints from DNS"
@@ -351,6 +355,7 @@ namespace cryptonote
     command_line::add_arg(desc, arg_no_fluffy_blocks);
     command_line::add_arg(desc, arg_test_dbg_lock_sleep);
     command_line::add_arg(desc, arg_offline);
+    command_line::add_arg(desc, arg_disable_ipfs);
     command_line::add_arg(desc, arg_disable_dns_checkpoints);
     command_line::add_arg(desc, arg_block_download_max_size);
     command_line::add_arg(desc, arg_sync_pruned_blocks);
@@ -481,6 +486,7 @@ namespace cryptonote
       m_nettype = FAKECHAIN;
     }
     bool r = handle_command_line(vm);
+
     CHECK_AND_ASSERT_MES(r, false, "Failed to handle command line");
 
     std::string db_sync_mode = command_line::get_arg(vm, cryptonote::arg_db_sync_mode);
@@ -722,6 +728,7 @@ namespace cryptonote
     }
 
     r = m_miner.init(vm, m_nettype);
+
     CHECK_AND_ASSERT_MES(r, false, "Failed to initialize miner instance");
 
     if (!keep_alt_blocks && !m_blockchain_storage.get_db().is_read_only())

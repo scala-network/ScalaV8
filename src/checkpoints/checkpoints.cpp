@@ -232,7 +232,7 @@ namespace cryptonote
 
     bool initLatest = insert_latest_diardi_checkpoint();
     if(!initLatest){
-      MERROR("Adding initial checkpoints from IPFS failed");
+      LOG_PRINT_L0("Adding initial checkpoints from IPFS failed");
     }
     return true;
   }

@@ -46,7 +46,7 @@ namespace cryptonote
     const std::string diardi::localGatewayIPNS = "http://127.0.0.1:11815/ipns/";
     const std::string diardi::localGatewayIPFS = "http://127.0.0.1:11815/ipfs/";
     const std::string diardi::errorDat = "error:error";
-    
+
     const std::vector<std::string> diardi::notaryNodes = {
             "alpha.scalaproject.io",
             "beta.scalaproject.io",
@@ -72,8 +72,7 @@ namespace cryptonote
 
     //---------------------------------------------------------------------------
     diardi::diardi()
-    {
-    }
+    {}
     //---------------------------------------------------------------------------
     bool diardi::getRequest(std::string& requestUrl, std::string& response){
         if (!epee::net_utils::parse_url(requestUrl, uC)){
@@ -86,14 +85,14 @@ namespace cryptonote
             return false;
         }
 
-        /* We're connecting locally so not needed */
-        epee::net_utils::ssl_support_t ssl_requirement = epee::net_utils::ssl_support_t::e_ssl_support_disabled;
-        uint16_t port = uC.port;
+        epee::net_utils::ssl_support_t ssl_requirement = uC.schema == "https" ? epee::net_utils::ssl_support_t::e_ssl_support_enabled : epee::net_utils::ssl_support_t::e_ssl_support_disabled;
+        uint16_t port = uC.port ? uC.port : ssl_requirement == epee::net_utils::ssl_support_t::e_ssl_support_enabled ? 443 : 80;
         client.set_server(uC.host, std::to_string(port), boost::none, ssl_requirement);
+
         epee::net_utils::http::fields_list fields;
         const epee::net_utils::http::http_response_info *info = NULL;
+        
         if (!client.invoke_get(uC.uri, std::chrono::seconds(20), "", &info, fields)){
-            LOG_PRINT_L0(requestUrl << " is not responding, skipping.");
             return false;
         }else{
             response = std::string(info->m_body);
@@ -104,7 +103,7 @@ namespace cryptonote
     CheckPointListType diardi::getHistoricalCheckpoints(){
         CheckPointListType m;
 
-        std::string requestUrl = localGatewayIPNS + staticCheckpointsName;
+        std::string requestUrl = (localGatewayIPNS + staticCheckpointsName);
         std::string response;
 
         bool tryRequest = getRequest(requestUrl, response);
@@ -184,7 +183,7 @@ namespace cryptonote
         std::vector<std::string> responses;
 
         for (auto &node: diardi::notaryNodes) {
-            std::string requestUrl = localGatewayIPNS + node + "/latestCheckpoint.json";
+            std::string requestUrl = (localGatewayIPNS + node + "/latestCheckpoint.json");
             std::string response;
 
             bool tryRequest = getRequest(requestUrl, response);
