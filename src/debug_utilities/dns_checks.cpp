@@ -131,7 +131,7 @@ int main(int argc, char* argv[])
 
   lookup(LOOKUP_A, {"dnsseeds.scalaproject.io"});
 
-  lookup(LOOKUP_TXT, {"updates-pulse.scalapulse.org"});
+  lookup(LOOKUP_TXT, {"updates-pulse.scalaproject.io"});
 
   lookup(LOOKUP_TXT, {"checkpoints-pulse.scalaproject.io"});
 
