@@ -63,4 +63,4 @@ jobs:
       with:
         name: ${{ matrix.toolchain.name }}
         path: |
-          /home/runner/work/ScalaV8/ScalaV8/build/${{ matrix.toolchain.host }}/release/bin/scala*
+          /home/runner/work/Scala/Scala/build/${{ matrix.toolchain.host }}/release/bin/scala*
