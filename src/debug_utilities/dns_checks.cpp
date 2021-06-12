@@ -131,18 +131,18 @@ int main(int argc, char* argv[])
 
   lookup(LOOKUP_A, {"dnsseeds.scalaproject.io"});
 
-  lookup(LOOKUP_TXT, {"updates.scalapulse.org", "updates.scalapulse.net", "updates.scalapulse.co", "updates.scalapulse.se", "updates.scalapulse.fr", "updates.scalapulse.de", "updates.scalapulse.no", "updates.scalapulse.ch"});
+  lookup(LOOKUP_TXT, {"updates-pulse.scalapulse.org"});
 
-  lookup(LOOKUP_TXT, {"checkpoints.scalapulse.org", "checkpoints.scalapulse.net", "checkpoints.scalapulse.co", "checkpoints.scalapulse.se"});
+  lookup(LOOKUP_TXT, {"checkpoints-pulse.scalaproject.io"});
 
   // those are in the code, but don't seem to actually exist
 #if 0
-  lookup(LOOKUP_TXT, {"testpoints.scalapulse.org", "testpoints.scalapulse.net", "testpoints.scalapulse.co", "testpoints.scalapulse.se");
+  lookup(LOOKUP_TXT, {"testpoints-pulse.scalaproject.io");
 
-  lookup(LOOKUP_TXT, {"stagenetpoints.scalapulse.org", "stagenetpoints.scalapulse.net", "stagenetpoints.scalapulse.co", "stagenetpoints.scalapulse.se"});
+  lookup(LOOKUP_TXT, {"stagepoints-pulse.scalaproject.io"});
 #endif
 
-  lookup(LOOKUP_TXT, {"segheights.scalapulse.org", "segheights.scalapulse.net", "segheights.scalapulse.co", "segheights.scalapulse.se"});
+  lookup(LOOKUP_TXT, {"seg-heights-pulse.scalaproject.io"});
 
   return 0;
   CATCH_ENTRY_L0("main", 1);

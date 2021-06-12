@@ -46,7 +46,7 @@ namespace tools
 
     // All four ScalaPulse domains have DNSSEC on and valid
     static const std::vector<std::string> dns_urls = {
-        "updates.scalaproject.io"
+        "updates-pulse.scalaproject.io"
     };
 
     if (!tools::dns_utils::load_txt_records_from_dns(records, dns_urls))

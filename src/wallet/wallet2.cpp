@@ -13976,7 +13976,7 @@ uint64_t wallet2::get_segregation_fork_height() const
   {
     // All four ScalaPulse domains have DNSSEC on and valid
     static const std::vector<std::string> dns_urls = {
-        "segheights.scalaproject.io"
+        "seg-heights-pulse.scalaproject.io"
     };
 
     const uint64_t current_height = get_blockchain_current_height();
