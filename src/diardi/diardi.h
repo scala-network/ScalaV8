@@ -62,13 +62,14 @@ namespace cryptonote
         /**
          * @brief Get a large list of historical static checkpoints from IPFS
          *
+         * @param ipfsDisabled whether the local IPFS node is disabled or not
          *
          * @return a map of type CheckPointListType which contains all the checkpoints
          *
          *
         */
 
-        CheckPointListType getHistoricalCheckpoints();
+        CheckPointListType getHistoricalCheckpoints(bool ipfsDisabled);
 
         /**
          * @brief Get the latest checkpoint from all diardi nodes
@@ -128,6 +129,7 @@ namespace cryptonote
         static const std::string seedsName;
         static const std::string bansName;
         static const std::string staticCheckpointsName;
+        static const std::string fallBackHistorical;
         static const std::string localGatewayIPNS;
         static const std::string localGatewayIPFS;
         static const std::string errorDat;

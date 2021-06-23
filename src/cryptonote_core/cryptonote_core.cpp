@@ -301,9 +301,10 @@ namespace cryptonote
     }
     else if (time(NULL) - m_last_diardi_checkpoints_update >= 240) /* Update from diardi every 4 minutes */
     {
-      bool addDiardi = m_checkpointsO.insert_latest_diardi_checkpoint();
-      if(!addDiardi){
-        MERROR("Adding latest checkpoint from diardi failed");
+      if(!m_disable_ipfs){
+        bool addDiardi = m_checkpointsO.insert_latest_diardi_checkpoint();
+        if(!addDiardi){
+          MERROR("Adding latest checkpoint from diardi failed");
       }
       m_last_diardi_checkpoints_update = time(NULL);
     }
@@ -383,10 +384,12 @@ namespace cryptonote
 
     auto data_dir = boost::filesystem::path(m_config_folder);
 
+    m_disable_ipfs = get_arg(vm, arg_disable_ipfs);
+
     if (m_nettype == MAINNET)
     {
       cryptonote::checkpoints checkpoints;
-      if (!checkpoints.init_default_checkpoints(m_nettype))
+      if (!checkpoints.init_default_checkpoints(m_nettype, m_disable_ipfs))
       {
         throw std::runtime_error("Failed to initialize checkpoints");
       }
@@ -404,6 +407,7 @@ namespace cryptonote
     m_fluffy_blocks_enabled = !get_arg(vm, arg_no_fluffy_blocks);
     m_offline = get_arg(vm, arg_offline);
     m_disable_dns_checkpoints = get_arg(vm, arg_disable_dns_checkpoints);
+
     if (!command_line::is_arg_defaulted(vm, arg_fluffy_blocks))
       MWARNING(arg_fluffy_blocks.name << " is obsolete, it is now default");
 

@@ -30,6 +30,9 @@
 
 #include "diardi.h"
 
+/* This is here because the epee libraries seem to have a problem with cloudflare workers */
+#include "HTTPRequest.hpp"
+
 using namespace epee;
 
 #undef SCALA_DEFAULT_LOG_CATEGORY
@@ -43,6 +46,7 @@ namespace cryptonote
     const std::string diardi::bansName = "bans.scalaproject.io";
     const std::string diardi:: staticCheckpointsName = "static-checkpoints.scalaproject.io";
 
+    const std::string diardi::fallBackHistorical = "http://fallback-historical-checkpoints.scalaproject.io/";
     const std::string diardi::localGatewayIPNS = "http://127.0.0.1:11815/ipns/";
     const std::string diardi::localGatewayIPFS = "http://127.0.0.1:11815/ipfs/";
     const std::string diardi::errorDat = "error:error";
@@ -100,13 +104,27 @@ namespace cryptonote
         }
     }
     //---------------------------------------------------------------------------
-    CheckPointListType diardi::getHistoricalCheckpoints(){
+    CheckPointListType diardi::getHistoricalCheckpoints(bool ipfsDisabled){
         CheckPointListType m;
 
-        std::string requestUrl = (localGatewayIPNS + staticCheckpointsName);
-        std::string response;
 
-        bool tryRequest = getRequest(requestUrl, response);
+        std::string requestUrl = (ipfsDisabled == true) ? (fallBackHistorical) : (localGatewayIPNS + staticCheckpointsName);
+        std::string response;
+        bool tryRequest;
+
+        if(ipfsDisabled == false){
+            tryRequest = getRequest(requestUrl, response);
+        }else{
+            try{
+                http::Request request{requestUrl};
+                const auto responseH = request.send("GET");
+                response = std::string{responseH.body.begin(), responseH.body.end()};
+                tryRequest = true;
+            }catch(...){
+                tryRequest = false;
+            }
+        }
+
         if(!tryRequest){
             LOG_PRINT_L0("Unable to get static list of checkpoints from IPFS");
         }else{
