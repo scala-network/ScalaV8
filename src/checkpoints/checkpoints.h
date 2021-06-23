@@ -167,10 +167,11 @@ namespace cryptonote
     /**
      * @brief loads the default main chain checkpoints
      * @param nettype network type
+     * @param ipfsDisabled ipfs disabled or not
      *
      * @return true unless adding a checkpoint fails
      */
-    bool init_default_checkpoints(network_type nettype);
+    bool init_default_checkpoints(network_type nettype, bool ipfsDisabled=false);
 
     /**
      * @brief load new checkpoints

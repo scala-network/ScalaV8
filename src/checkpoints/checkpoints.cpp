@@ -207,7 +207,7 @@ namespace cryptonote
     return false;
   }
 
-  bool checkpoints::init_default_checkpoints(network_type nettype)
+  bool checkpoints::init_default_checkpoints(network_type nettype, bool ipfsDisabled)
   {
     if (nettype == TESTNET)
     {
@@ -218,7 +218,7 @@ namespace cryptonote
       return true;
     }
 
-    CheckPointListType historicalCheckpointMap = diardiObj.getHistoricalCheckpoints();
+    CheckPointListType historicalCheckpointMap = diardiObj.getHistoricalCheckpoints(ipfsDisabled);
     for(CheckPointListType::iterator iter = historicalCheckpointMap.begin(); iter != historicalCheckpointMap.end(); ++iter)
     {
       uint64_t height =  iter->first;
@@ -228,11 +228,6 @@ namespace cryptonote
       boost::split(hDs, hD, boost::is_any_of(":"));
 
       ADD_CHECKPOINT2(height, hDs[0], hDs[1]);
-    }
-
-    bool initLatest = insert_latest_diardi_checkpoint();
-    if(!initLatest){
-      LOG_PRINT_L0("Initial fetching of latest diardi checkpoint failed");
     }
     return true;
   }
