@@ -301,12 +301,13 @@ namespace cryptonote
     }
     else if (time(NULL) - m_last_diardi_checkpoints_update >= 240) /* Update from diardi every 4 minutes */
     {
-      if(!m_disable_ipfs){
-        bool addDiardi = m_checkpointsO.insert_latest_diardi_checkpoint();
-        if(!addDiardi){
-          MERROR("Adding latest checkpoint from diardi failed");
+        if(!m_disable_ipfs){
+          bool addDiardi = m_checkpointsO.insert_latest_diardi_checkpoint();
+          if(!addDiardi){
+            MERROR("Adding latest checkpoint from diardi failed");
+        }
+        m_last_diardi_checkpoints_update = time(NULL);
       }
-      m_last_diardi_checkpoints_update = time(NULL);
     }
 
     m_checkpoints_updating.clear();
