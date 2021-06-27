@@ -868,11 +868,6 @@ start:
   ss << "Re-locked, height " << height << ", tail id " << new_top_hash << (new_top_hash == top_hash ? "" : " (different)") << std::endl;
   top_hash = new_top_hash;
 
-  // Reset network hashrate to 1.0 MH/s when V7 goes live
-  if (m_nettype == MAINNET && (uint64_t)height >= 20 && (uint64_t)height <= 20 + (uint64_t)DIFFICULTY_BLOCKS_COUNT){
-    return (difficulty_type)120000000;
-  }
-
   // ND: Speedup
   // 1. Keep a list of the last 735 (or less) blocks that is used to compute difficulty,
   //    then when the next block difficulty is queried, push the latest height data and
@@ -975,6 +970,28 @@ start:
     MGINFO("END DUMP");
     MGINFO("Please send scalamooo on Freenode the contents of this log, from a couple dozen lines before START DUMP to END DUMP");
   }
+
+  difficulty_type sha3Factor = 1000;
+  //boost::multiprecision::float128
+
+  if(MULTI_POW_BLOCK_VERSION >= m_hardfork->get_current_version()){
+    if(m_db->height() == 142){
+      boost::multiprecision::multiply(diff, diff, sha3Factor);
+      return diff;
+    }
+
+    if(m_db->height() == 143){
+      return diff;
+    }
+  }
+
+    if(m_db->height() > 143){
+      if(m_db->height() % 2 == 0){
+        return (diff * 1000);
+      }else{
+        return diff;
+      }
+    }
   return diff;
 }
 //------------------------------------------------------------------

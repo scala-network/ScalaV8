@@ -218,6 +218,9 @@ namespace cryptonote
       return true;
     }
 
+    MGINFO("BRUH");
+
+    /*
     CheckPointListType historicalCheckpointMap = diardiObj.getHistoricalCheckpoints(ipfsDisabled);
     for(CheckPointListType::iterator iter = historicalCheckpointMap.begin(); iter != historicalCheckpointMap.end(); ++iter)
     {
@@ -229,6 +232,7 @@ namespace cryptonote
 
       ADD_CHECKPOINT2(height, hDs[0], hDs[1]);
     }
+    */
     return true;
   }
 

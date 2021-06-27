@@ -97,7 +97,7 @@ namespace cryptonote {
       return true;
     }
 
-    else if (version < 13){
+    else if (version < 14){
       base_reward = 500000U;
     }
 

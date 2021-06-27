@@ -94,9 +94,12 @@ bool tree_branch_hash(const char hash[HASH_SIZE], const char (*branch)[HASH_SIZE
 bool is_branch_in_tree(const char hash[HASH_SIZE], const char root[HASH_SIZE], const char (*branch)[HASH_SIZE], size_t depth, uint32_t path);
 
 #define RX_BLOCK_VERSION	12
+#define MULTI_POW_BLOCK_VERSION	13
+
 void rx_slow_hash_allocate_state(void);
 void rx_slow_hash_free_state(void);
 uint64_t rx_seedheight(const uint64_t height);
 void rx_seedheights(const uint64_t height, uint64_t *seed_height, uint64_t *next_height);
 void rx_slow_hash(const uint64_t mainheight, const uint64_t seedheight, const char *seedhash, const void *data, size_t length, char *hash, int miners, int is_alt);
+void k12Wrapper(const void *data, size_t length, void *hash);
 void rx_reorg(const uint64_t split_height);

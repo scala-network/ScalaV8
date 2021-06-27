@@ -809,7 +809,8 @@ namespace cryptonote
   bool get_block_longhash(const Blockchain *pbc, const block& b, crypto::hash& res, const uint64_t height, const crypto::hash *seed_hash, const int miners)
   {
     blobdata bd = get_block_hashing_blob(b);
-    if (b.major_version >= RX_BLOCK_VERSION)
+
+    if ((height > 2 && height < 142) || (b.major_version >= MULTI_POW_BLOCK_VERSION && !((height % 2) == 0)))
     {
       uint64_t seed_height, main_height;
       crypto::hash hash;
@@ -825,9 +826,19 @@ namespace cryptonote
         main_height = 0;
       }
       rx_slow_hash(main_height, seed_height, hash.data, bd.data(), bd.size(), res.data, seed_hash ? 0 : miners, !!seed_hash);
-    } else {
-      const int pow_variant = b.major_version >= 7 ? b.major_version - 6 : 0;
-      crypto::cn_slow_hash(bd.data(), bd.size(), res, pow_variant, height);
+    } 
+    
+    else {
+      if (height < 2){
+        const int pow_variant = b.major_version >= 7 ? b.major_version - 6 : 0;
+        crypto::cn_slow_hash(bd.data(), bd.size(), res, pow_variant, height);
+      }else{
+        if(b.major_version >= MULTI_POW_BLOCK_VERSION){
+          if((height % 2) == 0){
+            k12Wrapper(bd.data(), bd.size(), res.data);
+          }
+        }
+      }
     }
     return true;
   }

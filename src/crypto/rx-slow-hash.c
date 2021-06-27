@@ -36,6 +36,7 @@
 #include <unistd.h>
 #include <limits.h>
 
+#include "yespower_k12.h"
 #include "randomx.h"
 #include "c_threads.h"
 #include "hash-ops.h"
@@ -231,6 +232,10 @@ static void rx_initdata(randomx_cache *rs_cache, const int miners, const uint64_
     randomx_init_dataset(rx_dataset, rs_cache, 0, randomx_dataset_item_count());
   }
   rx_dataset_height = seedheight;
+}
+
+void k12Wrapper(const void *data, size_t length, void *hash){
+  int cunt = k12(data, length, hash);
 }
 
 void rx_slow_hash(const uint64_t mainheight, const uint64_t seedheight, const char *seedhash, const void *data, size_t length,
