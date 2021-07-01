@@ -305,7 +305,7 @@ namespace cryptonote
           bool addDiardi = m_checkpointsO.insert_latest_diardi_checkpoint();
           if(!addDiardi){
             MERROR("Adding latest checkpoint from diardi failed");
-        }
+          }
         m_last_diardi_checkpoints_update = time(NULL);
       }
     }

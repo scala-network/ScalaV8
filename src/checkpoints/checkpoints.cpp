@@ -200,8 +200,8 @@ namespace cryptonote
       std::string hash = jsonCheckpoint["hash"].GetString();
       std::string difficulty = jsonCheckpoint["difficulty"].GetString();
 
-      ADD_CHECKPOINT2(height, hash, difficulty);
-      MGINFO("Inserted checkpoint for height " << height << " from diardi");
+      ADD_CHECKPOINT(height, hash);
+      LOG_PRINT_L1("Inserted checkpoint for height " << height << " from diardi");
       return true;
     }
     return false;
