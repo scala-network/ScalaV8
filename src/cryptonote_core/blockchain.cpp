@@ -3677,40 +3677,7 @@ bool Blockchain::check_fee(size_t tx_weight, uint64_t fee) const
 //------------------------------------------------------------------
 uint64_t Blockchain::get_dynamic_base_fee_estimate(uint64_t grace_blocks) const
 {
-  const uint8_t version = get_current_hard_fork_version();
-  const uint64_t db_height = m_db->height();
-
-  if (version < HF_VERSION_DYNAMIC_FEE)
-    return FEE_PER_KB;
-
-  if (grace_blocks >= CRYPTONOTE_REWARD_BLOCKS_WINDOW)
-    grace_blocks = CRYPTONOTE_REWARD_BLOCKS_WINDOW - 1;
-
-  const uint64_t min_block_weight = get_min_block_weight(version);
-  std::vector<uint64_t> weights;
-  get_last_n_blocks_weights(weights, CRYPTONOTE_REWARD_BLOCKS_WINDOW - grace_blocks);
-  weights.reserve(grace_blocks);
-  for (size_t i = 0; i < grace_blocks; ++i)
-    weights.push_back(min_block_weight);
-
-  uint64_t median = epee::misc_utils::median(weights);
-  if(median <= min_block_weight)
-    median = min_block_weight;
-
-  uint64_t already_generated_coins = db_height ? m_db->get_block_already_generated_coins(db_height - 1) : 0;
-  uint64_t base_reward;
-  if (!get_block_reward(m_current_block_cumul_weight_limit / 2, 1, already_generated_coins, base_reward, version, m_db->height()))
-  {
-    MERROR("Failed to determine block reward, using placeholder " << print_money(BLOCK_REWARD_OVERESTIMATE) << " as a high bound");
-    base_reward = BLOCK_REWARD_OVERESTIMATE;
-  }
-
-  const bool use_long_term_median_in_fee = version >= HF_VERSION_LONG_TERM_BLOCK_WEIGHT;
-  const uint64_t use_median_value = use_long_term_median_in_fee ? std::min<uint64_t>(median, m_long_term_effective_median_block_weight) : median;
-  const uint64_t fee = get_dynamic_base_fee(base_reward, use_median_value, version);
-  const bool per_byte = version < HF_VERSION_PER_BYTE_FEE;
-  MDEBUG("Estimating " << grace_blocks << "-block fee at " << print_money(fee) << "/" << (per_byte ? "byte" : "kB"));
-  return fee;
+  return FEE_PER_KB;
 }
 
 //------------------------------------------------------------------
